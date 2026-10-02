@@ -1,7 +1,7 @@
 # 首次公开发布清单 / First public release
 
 适合筹备 **experimental source release**，不称成熟产品。本文件是待办，
-不是“全部通过”证明；未初始化或推送远程仓库。源码公开与正式 APK 分发
+不是“全部通过”证明；源码已推送到 `karurukaruru/OpenWoven`。源码公开与正式 APK 分发
 是两个不同里程碑。所有者已选择 MIT，确认版权署名 `karurukaruru` 与
 目标仓库 `karurukaruru/OpenWoven`。
 
@@ -12,7 +12,8 @@
 
 已补 [三张架构图与模块对应](ARCHITECTURE.md)。架构文档及Android所引用的
 `android/app/proguard-rules.pro` 都是发布检查必备项，缺失会阻塞自动检查。
-此次只修补文档与清单，不开启R8、不配置签名、不修改聊天运行逻辑。
+本轮补了 [AUL 设计](AUL_DESIGN.md) 与定时任务同时间排序修复；不启用 R8 或生产签名。
+公开产物只考虑 Full，Locked 源码保留，不上传 Locked APK。
 
 ## 1. 公开源码前必须完成
 
@@ -20,20 +21,22 @@
   MIT 文本及 Python 包的 SPDX 声明已准备；不要带占位署名直接发布。
   [GitHub 说明](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository)
   区分公开可见与授予使用、修改、再分发许可。
-- [ ] 检查实际待提交文件及已有历史（如导入旧仓库）：不得包含 Key、真实聊天、
+- [x] 检查实际待提交文件及已有历史（如导入旧仓库）：不得包含 Key、真实聊天、
   数据库/WAL/SHM、私有地址、签名材料或构建缓存。忽略规则不是秘密扫描。
   不提交工作目录的全部文件；APK 只考虑单独的 Release 附件。
+  本次检查初始两次提交的 166 个源码 blob、提交邮箱与当前 160 项源码清单；
+  未发现常见密钥特征，未纳入私人数据／构建产物，提交邮箱为 GitHub noreply。
+  有限模式检查不等于完备安全审计，后续新增提交仍需复查。
 - [ ] 建立私下安全报告渠道并更新 `SECURITY.md`。可在目标仓库启用
   [private vulnerability reporting](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository)。
   当前没有已启用的渠道或响应时限承诺。
 - [ ] 在 GitHub 跑通 Core workflow：Windows/Linux、Python 3.11/3.13、发行包安装、
   隔离模式无 Key Demo、全部回归和合成检索记录。不仅凭本地测试挂绿徽章。
-- [ ] 完成版权署名后重新构建 wheel，并运行
+- [x] 完成版权署名后重新构建 wheel，并运行
   `python scripts/package_smoke.py --for-publication`。默认检查允许本地草稿，
   发布模式拒绝未完成的版权占位；这仍不是秘密扫描或许可证法律审查。
-- [ ] 让另一个人在干净目录按英文 README 跑通；首次安装可能下载构建工具，
-  无 Key 不等于整个安装过程绝对无需互联网。
-- [ ] 首页标注原型、单用户、规则语言范围、非语义检索、删除边界；
+  本次当前源码 wheel 已通过临时隔离环境的发布模式检查、无 Key demo 和兼容入口。
+- [x] 首页标注原型、单用户、规则语言范围、非语义检索、删除边界；
   不把本地示例说成真实 LLM 效果，不宣传未验证的 60%-token/90%-quality。
 
 已准备：中英文入口、无 Key 演示、贡献/安全说明、Issue/PR 模板、Core CI、
@@ -41,7 +44,8 @@
 配置存在不代表托管 CI/安全审查通过。Action 已固定到2026-10-01从官方仓库标签
 核实的 commit SHA；需要持续审核更新，固定版本不等于完整供应链审计。
 另有手动 Source release candidate 工作流：版权完成后构建/检查wheel，生成
-短期候选artifact；无仓库写权限、不自动公开Release，尚未在GitHub执行。
+短期候选 artifact；无仓库写权限、不自动公开 Release。执行状态看 Actions，
+不要把已配置等同于已运行通过。
 
 ## 2. Android 体验版与正式版分开
 
@@ -84,6 +88,10 @@
   GitHub 发布不代表获得商店审核通过。
 
 ## 3. 怎样更有说服力
+
+- [ ] 让另一个人在干净目录按英文 README 跑通，记录独立上手问题。
+  这是后续体验验证，不把“另一位真人已跑过”伪写成源码首发的自动检查结果。
+  首次安装可能下载构建工具，无 Key 不等于安装过程完全无需互联网。
 
 先展示可复现闭环：偏好反馈 → Evidence/AUL → 后续 Policy 改变 → 来源解释 →
 撤回/删除，再展示日期定位原话。录屏只用合成身份；真实模型效果与离线机制

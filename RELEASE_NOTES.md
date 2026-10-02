@@ -1,6 +1,7 @@
 # OpenWoven release notes draft — v0.1.0
 
-**Not published.** Use the body below only after the checks in
+**No tagged GitHub Release yet.** This is a draft, not a statement of repository
+visibility. Use the body below only after the checks in
 [GITHUB_RELEASE.md](GITHUB_RELEASE.md). Confirm the target commit, copyright,
 private security-report channel, hosted CI and selected attachments first.
 Remove this drafting paragraph; replace document links with actual tag URLs
@@ -10,9 +11,11 @@ in the chosen repository when copying into a GitHub Release body.
 
 ## OpenWoven v0.1.0 — Experimental source release
 
-OpenWoven is a local-first, explainable preference-learning layer
-with calendar memory and an Android reference client. It learns auditable user
-preferences from evidence and explicit feedback, not model weights.
+OpenWoven is an experimental Android chat project with a reusable Python Core:
+calendar memory, short paced messages, proactive openings and **AUL (AI User
+Learning)**. AUL learns auditable preferences from evidence and specific
+feedback, not model weights. An interview supplies a starting point rather than
+a fixed personality label; later corrections can change the initial assumptions.
 
 ### Included
 
@@ -27,6 +30,9 @@ preferences from evidence and explicit feedback, not model weights.
   separate short bubbles, paced delivery and input-idle reply gating.
 - Explicit scheduled messages and low-frequency proactive topics; stoppable
   resident service/system-work fallback, permissions and notification outbox.
+- Generated proactive openings use at most three short, paced bubbles; exact
+  user-scheduled original text is preserved. Tied schedule timestamps have stable
+  insertion ordering rather than relying on platform clock resolution.
 - User-selected image uploads for models explicitly marked vision-capable.
 
 ### Try without a model key
@@ -62,8 +68,9 @@ is a convenience gate, not security.
 
 This release is source-first. A wheel is for Python, not Android. Any optional
 Android downloads are **Debug / experimental** reference builds, not production
-APKs; Android 8+, arm64-v8a/x86_64. Available editions depend on the actual
-attachments. Binary downloads should be accompanied by their build-source
+APKs; Android 8+, arm64-v8a/x86_64. Public Android attachments are **Full only**;
+Locked source remains in the repository but Locked APKs are not uploaded.
+Binary downloads should be accompanied by their build-source
 details, third-party notices and `SHA256SUMS.txt`.
 Different Debug signing keys can prevent updates; uninstalling loses local data.
 Production signing/device/provider acceptance are separate milestones.

@@ -21,7 +21,7 @@ ROOT_FILES = (
     '.gitignore', '.gitattributes', 'LICENSE', 'pyproject.toml', 'README.md',
     'README.en.md', 'ARCHITECTURE.md', 'CONTRIBUTING.md', 'SECURITY.md', 'CHANGELOG.md',
     'GITHUB_RELEASE.md', 'RELEASE_NOTES.md', 'RELEASE_CHECKLIST.md', 'REVIEW.md',
-    'MEMORY_DESIGN.md', 'PERSONA_DESIGN.md', 'RUNTIME_GUIDE.md', 'PERFORMANCE.md',
+    'MEMORY_DESIGN.md', 'PERSONA_DESIGN.md', 'AUL_DESIGN.md', 'RUNTIME_GUIDE.md', 'PERFORMANCE.md',
     'OPEN_SOURCE_PLAN.md', 'COMPETITOR_NOTES.md',
     'android/build.gradle.kts', 'android/settings.gradle.kts',
     'android/gradle.properties', 'android/gradlew', 'android/gradlew.bat',

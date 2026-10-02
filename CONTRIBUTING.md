@@ -1,7 +1,7 @@
 # Contributing
 
-The repository is being prepared for its first public release. The owner selected
-MIT; the confirmed copyright holder is karurukaruru (2026).
+This is an experimental source project, not a production APK release. The owner
+selected MIT; the confirmed copyright holder is karurukaruru (2026).
 Third-party components retain their own licenses.
 
 Publishing steps are in [GITHUB_RELEASE.md](GITHUB_RELEASE.md); the first-release
@@ -27,6 +27,8 @@ Keep the core small and provider-independent. Preserve raw conversation data,
 source provenance, deterministic aggregation, and the distinction between
 Persona, Memory, AUL and Policy. Avoid new cloud services or dependencies unless
 a measured problem calls for them.
+See [AUL_DESIGN.md](AUL_DESIGN.md) for the meaning of AI User Learning, feedback
+limitations and the distinction between mechanism checks and model-quality tests.
 
 Useful initial contributions: Chinese negation/quotation regression cases,
 indexed historical retrieval, stream/cancellation lifecycle tests, accessible
@@ -39,6 +41,9 @@ files, API credentials, signing material, or unredacted provider error logs.
 The prepared Core-test workflow uses no model API calls and requires no API keys.
 It installs the distribution (not an editable link) and smoke-tests isolated imports.
 A separate manual Android workflow uses no provider or production signing secrets.
-Neither has run on GitHub; local checks and hosted CI are different evidence.
+It tests/lints both editions, but builds and uploads Full only; do not add Locked
+APKs to artifacts or Releases. Current hosted results are in
+[Actions](https://github.com/karurukaruru/OpenWoven/actions); local and hosted
+checks are different evidence.
 First installs/builds may download tools/dependencies. See RELEASE_CHECKLIST.md
 before treating this as a released package or APK.

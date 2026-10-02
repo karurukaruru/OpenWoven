@@ -102,12 +102,27 @@ class ScheduledMessagesTests(unittest.TestCase):
         for i in range(60):
             job = self.core.schedule_custom('old '+str(i), self.when)
             self.core.store.update_scheduled_status(job['id'], 'cancelled')
+        # Fast inserts can share timestamps, especially on Windows/Python 3.11.
+        # Force that case instead of depending on the platform clock resolution.
+        with self.core.store.connection() as conn:
+            conn.execute("UPDATE scheduled_messages SET created_at='2026-01-01T00:00:00+00:00'")
+            conn.commit()
         pending = self.core.schedule_custom('new pending', self.when)
         with patch.object(android_bridge, '_core', self.core):
             rows = json.loads(android_bridge.scheduled_queue(10))
         self.assertEqual(10, len(rows))
         self.assertEqual(pending['id'], rows[0]['id'])
         self.assertEqual('old 59', rows[1]['draft_intent'])
+
+    def test_same_time_pending_schedules_keep_insertion_order(self):
+        jobs = [self.core.schedule_custom('pending '+str(i), self.when) for i in range(4)]
+        with self.core.store.connection() as conn:
+            conn.execute("UPDATE scheduled_messages SET created_at='2026-01-01T00:00:00+00:00'")
+            conn.commit()
+        expected = [job['id'] for job in jobs]
+        self.assertEqual(expected, [job.id for job in self.core.store.list_scheduled_messages('pending')])
+        with patch.object(android_bridge, '_core', self.core):
+            self.assertEqual(expected, [row['id'] for row in json.loads(android_bridge.scheduled_queue())])
 
 
 class ChatBubblesTests(unittest.TestCase):

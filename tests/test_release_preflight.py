@@ -87,7 +87,7 @@ class ReleasePreflightTests(unittest.TestCase):
         self.assertTrue(any('version strings' in item for item in report['blockers']))
 
     def test_architecture_and_shrinker_config_are_required_and_included(self):
-        for name in ('ARCHITECTURE.md', 'android/app/proguard-rules.pro'):
+        for name in ('ARCHITECTURE.md', 'AUL_DESIGN.md', 'android/app/proguard-rules.pro'):
             self.assertIn(name, source_inventory(self.root))
             self.assertIn(name, REQUIRED_FILES)
             original = (self.root / name).read_text(encoding='utf-8')
@@ -209,6 +209,17 @@ class ReleasePreflightTests(unittest.TestCase):
             for line in source.splitlines():
                 if 'uses:' in line:
                     self.assertRegex(line, r'uses: [A-Za-z0-9_/-]+@[0-9a-f]{40}\b')
+
+    def test_android_artifacts_never_upload_locked_apks(self):
+        checkout = Path(__file__).resolve().parents[1]
+        workflow = (checkout / '.github/workflows/android-checks.yml').read_text(encoding='utf-8')
+        self.assertIn(':app:testLockedDebugUnitTest', workflow)
+        self.assertIn(':app:lintLockedDebug', workflow)
+        self.assertIn(':app:assembleFullDebug', workflow)
+        self.assertNotIn(':app:assembleLockedDebug', workflow)
+        self.assertIn('android/app/build/outputs/apk/full/debug/*.apk', workflow)
+        self.assertNotIn('android/app/build/outputs/apk/*/', workflow)
+        self.assertNotIn('android/app/build/outputs/apk/locked/', workflow)
 
     @unittest.skipUnless(shutil.which('git'), 'Git not available')
     def test_real_synthetic_git_index_rejects_extras_and_stale_staging(self):

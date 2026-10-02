@@ -194,7 +194,9 @@ def scheduled_queue(limit: int = 50) -> str:
             LEFT JOIN notification_outbox n ON n.message_id=s.sent_message_id WHERE s.topic NOT LIKE 'reply:%'
             ORDER BY CASE WHEN s.status='pending' THEN 0 ELSE 1 END,
             CASE WHEN s.status='pending' THEN s.scheduled_at END ASC,
-            CASE WHEN s.status!='pending' THEN s.created_at END DESC LIMIT ?""", (max(1, min(100, int(limit))),)).fetchall()
+            CASE WHEN s.status='pending' THEN s.rowid END ASC,
+            CASE WHEN s.status!='pending' THEN s.created_at END DESC,
+            s.rowid DESC LIMIT ?""", (max(1, min(100, int(limit))),)).fetchall()
     return _json([{**asdict(_require_core().store._scheduled_from_row(row)),
                    'notification_status': row['notification_status']} for row in rows])
 

@@ -1,14 +1,15 @@
-# 开源与产品定位：2026-09-30
+# 开源与产品定位（2026-10-02 更新）
 
 ## 结论
 
-2026-10-01补充：具体发布步骤见 [GitHub发布指南](GITHUB_RELEASE.md)，
-首版说明见 [发布草稿](RELEASE_NOTES.md)。已准备本地源码清单/附件校验工具和
-只生成候选artifact的手动流程；不代表已上传或托管CI已通过。
+具体发布步骤见 [GitHub发布指南](GITHUB_RELEASE.md)，首版说明见
+[发布草稿](RELEASE_NOTES.md)，AUL 的概念、实现与边界见 [AUL 设计](AUL_DESIGN.md)。
+源码已推送到 `karurukaruru/OpenWoven`；公开状态和各次托管结果以
+[仓库](https://github.com/karurukaruru/OpenWoven) 与 Actions 为准。
 
 值得整理成公开的实验性项目；还不足以称为成熟 OpenWoven 产品。推荐定位：
 
-> 可解释、低额外调用成本的对话偏好学习引擎，附 Android 参考应用。
+> 会记住聊过什么、逐步学习怎么聊，并能主动聊两句的开源 Android 实验项目。
 
 主交付物是可嵌入的 Python Core，Android 是可体验、可验证的参考客户端。
 先做单用户、用户自带 Provider 的长期聊天；暂不扩展多人服务、人物市场、
@@ -35,22 +36,25 @@
 本轮已准备：英文入口、无需 Key 的演示、贡献说明、安全边界、Python CI
 配置、可移植 Python 构建路径，以及数据库/密钥/环境文件忽略规则。
 另补了Issue/PR模板、手动Android检查、发行包隔离冒烟和合成检索脚本；
-所有者已选择MIT，版权署名待填。见 [发布清单](RELEASE_CHECKLIST.md)。
-CI 尚未在 GitHub 执行；本轮测试不能代表 Linux/其他 Python 版本已经验证。
+所有者已选择 MIT 并确认版权署名 `karurukaruru`。见 [发布清单](RELEASE_CHECKLIST.md)。
+Core CI 已开始在 GitHub 执行；不能用本地通过替代同一提交的四组托管结果。
+公开二进制只考虑 Full，不上传 Locked APK；Locked 源码保留但不宣传安全隔离。
 
 仍需：
 
-1. 所有者已选择MIT，文本与包声明已添加；仍需填写版权署名、确定账号与仓库名。当前目录尚未初始化 Git。
+1. 所有者已选择 MIT，文本、包声明、版权署名与目标仓库已确认。
    [GitHub 许可证说明](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository)
    指出，没有许可证并不等于别人可以自由使用。不要仅公开代码就宣称正式开源。
 2. 检查将被提交的实际文件，避免数据库、聊天、Key、生产签名和私人地址进入仓库。
    `.gitignore` 不等于已完成秘密扫描，也不能修复已有提交历史。
 3. 录制 60–90 秒真实演示：默认回复 → “太长/别追问”反馈 → AUL/Policy 改变 → 后续真实模型回复。
    不用确定性 Provider 的输出假装真实模型效果；录屏只使用合成身份和内容。
-4. 验证至少一台真机与一个真实 Provider；公开已知问题，提供仅用于试用的 Debug APK。
+4. 正式分发 APK 前验证至少一台真机与一个真实 Provider，补齐第三方声明；
+   先公开实验性源码不要求读者提供 Key，也不宣称真机验收已经完成。
 5. 发布可复现的小评测集和原始统计；没有实测时，不宣称“省 40% token 只损失 10% 效果”。
 
-许可证按所有者本轮选择设为MIT；未替其填写版权归属，未创建或推送远程仓库。
+MIT 与源码公开不等于 APK 已正式发行。任何附件都须核对实际构建来源与校验值，
+不能把旧包附到新的来源标签。
 
 ## 下一步优化顺序
 

@@ -18,10 +18,12 @@ MIT版权署名为 `karurukaruru`（2026）。以下为可复用操作步骤，�
 
 仓库简介建议：
 
-> Local-first, explainable preference learning and calendar memory for conversational apps, with an Android reference client.
+> An experimental Android chat app that learns how you like to talk — AUL, local calendar memory, short message bubbles and proactive check-ins.
 
-建议 Topics：`llm`、`memory`、`personalization`、`android`、`python`、`local-first`。
+建议 Topics：`android`、`llm`、`personalization`、`long-term-memory`、`local-first`、`python`、`kotlin`、`aul`。
 首页展示无 Key 可复现的学习/遗忘闭环，不用未验证的真人感或节省率宣传。
+博客只提炼项目动机，不上传完整私人经历或把未经验证的效果当作广告。
+公开附件以 Full 为主；Locked 源码保留，不上传 Locked APK。
 
 ## 2. 本地检查准备上传的内容
 
@@ -66,8 +68,8 @@ wheel 是 Python 安装包，不是 APK；首次构建可能下载工具依赖�
 
 ## 3. 所有者确认后才创建仓库、提交和推送
 
-**以下是以后手动执行的步骤，本轮没有执行。**
-当前工作目录尚无 Git 仓库；若以后已有仓库，不要重复初始化或改写历史。
+2026-10-02 已初始化本地仓库并推送 `main` 到 `karurukaruru/OpenWoven`。
+下方是新项目可复用步骤，不要在已有仓库重复初始化、改写历史或重复添加 `origin`。
 先确认 Git 身份和提交邮箱公开范围；邮箱会进入提交元数据。
 
 1. GitHub 新建空仓库，不额外初始化 README、许可证和忽略规则。
@@ -91,11 +93,11 @@ if ($LASTEXITCODE -ne 0) { throw "停止：提交内容检查未通过" }
 导入已有仓库须另行检查历史；`.gitignore` 不会清理旧提交。
 修改/新增源码后重跑检查并更新清单，不沿用较早快照直接发布。
 
-3. 提交、连接自己的空仓库、推送；先把地址占位换成真实账号/仓库：
+3. 提交、连接自己的空仓库、推送（已连接 `origin` 时只需正常推送）：
 
 ```powershell
 git commit -m "Prepare experimental v0.1.0 source release"
-git remote add origin https://github.com/YOUR_ACCOUNT/YOUR_REPOSITORY.git
+git remote add origin https://github.com/karurukaruru/OpenWoven.git
 git push -u origin main
 ```
 
@@ -105,7 +107,8 @@ git push -u origin main
 ## 4. 在 GitHub 生成候选材料，不自动发布
 
 - `Core tests`：推送/PR 后检查 Linux/Windows、Python 3.11/3.13、发行包安装和无 Key 回归。
-- `Android offline-model checks (manual)`：Actions 手动运行，两版 JVM 检查、Lint、Debug 构建。
+- `Android offline-model checks (manual)`：Actions 手动运行，两版 JVM 检查、Lint，
+  只构建与保留 Full Debug APK，绝不上传 Locked APK。
   短期 artifact 是检查产物，不是正式 Release。
 - `Source release candidate (manual, no publication)`：在确认的候选提交手动运行。
   要求版权完成，检查源码清单、构建 wheel、隔离安装、回归及校验值；
@@ -113,7 +116,9 @@ git push -u origin main
 
 Actions 已固定到从官方仓库标签核实的 commit SHA（2026-10-01）。
 这限制浮动标签变更，不等于完整供应链审计；以后要审核更新。
-这些工作流尚未在真实 GitHub 仓库执行，首次上传仍须查看结果，不提前挂通过徽章。
+Core 工作流已开始在 GitHub 执行，当前结果见
+[Actions](https://github.com/karurukaruru/OpenWoven/actions)。应检查同一提交的
+四组结果，不以旧提交通过或本地静态检查代替；手动工作流须另外触发。
 三份工作流已通过本地actionlint 1.7.12静态检查（未启用ShellCheck/Pyflakes）；
 静态通过不能替代GitHub运行或Android真机检查。
 托管执行按账号可用额度进行，不需要模型 API 额度。
@@ -133,17 +138,15 @@ Actions 已固定到从官方仓库标签核实的 commit SHA（2026-10-01）。
 5. 私有仓库转公开前再次确认源码、提交元数据及可见内容；启用私下漏洞报告，
    更新 `SECURITY.md` 和已完成事项的待定描述。
 
-若附 APK，在选定提交重新构建两版，再显式指定附件生成新快照：
+若附 APK，先完成第三方声明与对应验收，在选定提交重新构建 Full，
+再显式指定附件生成新快照。不要复制或上传 Locked APK：
 
 ```powershell
 Copy-Item -LiteralPath android/app/build/outputs/apk/full/debug/app-full-debug.apk `
   -Destination dist/OpenWoven-0.1.0-full-debug.apk
-Copy-Item -LiteralPath android/app/build/outputs/apk/locked/debug/app-locked-debug.apk `
-  -Destination dist/OpenWoven-0.1.0-locked-debug.apk
 python scripts/release_preflight.py --for-publication --check-index `
   --asset dist/openwoven-0.1.0-py3-none-any.whl `
   --asset dist/OpenWoven-0.1.0-full-debug.apk `
-  --asset dist/OpenWoven-0.1.0-locked-debug.apk `
   --output release-dist/assets-review-01
 ```
 

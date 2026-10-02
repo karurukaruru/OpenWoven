@@ -1,15 +1,39 @@
 # OpenWoven
 
-The app and Python distribution are named **OpenWoven**. Use `openwoven` for new imports and CLI commands. Legacy `adaptive_companion` imports, the `companion` CLI and `COMPANION_*` settings remain supported. Android retains its `com.adaptive.companion` application IDs and storage/channel identifiers to preserve installation and data compatibility. Full is labeled OpenWoven Developer; Locked is OpenWoven. Character nicknames are unchanged.
+An experimental Android chat app that remembers conversations, learns how you like to talk, and can start a conversation of its own.
 
-[中文](README.md) · [Architecture](ARCHITECTURE.md) · [Performance](PERFORMANCE.md) · [GitHub publishing](GITHUB_RELEASE.md) · [Release checklist](RELEASE_CHECKLIST.md) · [Changelog](CHANGELOG.md)
+[中文](README.md) · [AUL design](AUL_DESIGN.md) · [Architecture](ARCHITECTURE.md) · [Performance](PERFORMANCE.md) · [GitHub publishing](GITHUB_RELEASE.md) · [Release checklist](RELEASE_CHECKLIST.md) · [Changelog](CHANGELOG.md)
 
-A local-first, explainable preference-learning layer for conversational apps,
-with an Android reference client. It turns feedback into auditable user beliefs
-and concrete guidance for later replies. It does **not** train model weights.
+The idea is **AUL (AI User Learning)**: an adaptive user layer that turns
+conversation evidence and specific feedback into auditable preferences and
+guidance for later LLM replies. It does **not** train model weights.
 
 Status: experimental, single-user prototype. Automated checks validate state
 transitions, not long-term user satisfaction or real-model reply quality.
+With a remote provider configured, selected conversation and memory context
+is sent to that provider. Local-first does not mean the model runs on-device.
+
+## Why this exists
+
+Remembering how to use software was the idea behind an earlier ASM (Agent
+Software Map) project. OpenWoven applies a similar idea to communication
+preferences: how brief replies should be, when to take initiative, and whether
+playful banter or repeated advice is welcome. An interview is only a starting
+point; later corrections must be able to change the initial assumptions.
+
+The client also tackles the mechanics of everyday messaging: separate short
+bubbles, paced delivery, waiting while the user is composing, and occasional
+scheduled openings rather than an immediate wall of text. Generated proactive
+openings are bounded to at most three short bubbles. Calendar memory keeps
+original messages and retrieves selected excerpts instead of sending all history.
+
+Persona describes the fictional character; AUL describes the user's preferences;
+Memory keeps conversation sources; Policy selects guidance for this turn.
+Specific feedback such as “too long” updates style. Generic thumbs-up/down do
+not identify which style dimension to reinforce. See [AUL design](AUL_DESIGN.md)
+for the actual update rules and limitations. The 10/50-question interview is not
+a validated psychological scale, and no human-likeness or token/quality saving
+claim has been independently demonstrated.
 
 Best fit: developers exploring auditable preference learning and local calendar
 memory. The Core is reusable on its own; Android is a reference client, not a
@@ -68,7 +92,7 @@ Configure a provider explicitly for real chat.
 
 ## What is distinct here?
 
-- Separate Persona, Memory, Adaptive User Layer (AUL), and per-turn Policy.
+- Separate Persona, Memory, AUL (AI User Learning), and per-turn Policy.
 - Rules-first evidence extraction; optional, gated semantic extraction.
 - Explicit feedback changes ten conversation-style dimensions, with provenance.
 - Durable raw messages, replayable evidence, bounded prompt projections.
@@ -164,6 +188,12 @@ Offline commands: `archive`, `show monthly`, `search "2026-07-11 keyword"`,
 Kotlin/Compose + Chaquopy, Android 8+, arm64-v8a and x86_64. Full and Locked
 flavors share the same core implementation but use separate application storage.
 The Locked password is a convenience gate, **not** an access-control boundary.
+Public binary distribution is Full-only: Locked source remains available for
+development and regression checks, but Locked APKs are not uploaded.
+
+Use `openwoven` for new imports and CLI commands. Legacy `adaptive_companion`
+imports, `companion` and `COMPANION_*` settings remain compatible. Android keeps
+its existing application/storage IDs; Full is labeled OpenWoven Developer.
 
 Both editions offer best-effort system scheduling or a visible, stoppable resident
 foreground service. Both now default to resident mode, disclosed at onboarding;
@@ -206,10 +236,12 @@ The first Android build downloads dependencies; offline mode requires a populate
 cache. Debug APKs are under `android/app/build/outputs/apk/{full,locked}/debug/`.
 Production signing and release hardening remain unfinished.
 
-The prepared Core workflow installs the distribution and smoke-tests isolated
+The Core workflow installs the distribution and smoke-tests isolated
 imports on Windows/Linux and Python 3.11/3.13. A manual Android workflow checks
-both Debug editions without provider keys and retains reports/APKs for seven days.
-Neither has run on GitHub yet; dependency downloads require internet access.
+both editions' unit tests and lint without provider keys, builds Full only, and
+retains reports and the Full Debug APK for seven days. Locked APKs are excluded.
+See [actual hosted runs](https://github.com/karurukaruru/OpenWoven/actions) for
+current results; dependency downloads require internet access.
 CI artifacts are not a stable public Release. Different machines' Debug signing
 keys may prevent update installation; uninstalling loses local history because
 export/backup is unavailable. Both Debug application IDs end with `.debug`.

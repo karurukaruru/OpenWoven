@@ -1,12 +1,45 @@
 # OpenWoven
 
-应用与核心包统一使用 **OpenWoven**。Python 新入口为 `openwoven`；旧 `adaptive_companion` 导入、`companion` 命令及 `COMPANION_*` 环境变量继续兼容。Android 保留 `com.adaptive.companion` 应用 ID、数据库与通知渠道标识，避免改名造成安装或本地数据迁移问题。Full 显示为 OpenWoven Developer，Locked 显示为 OpenWoven；角色昵称不受影响。
+一个会记住聊过什么、逐步学习你喜欢怎么聊，并能主动找你聊两句的开源 Android 聊天项目。
 
-[English](README.en.md) · [角色与冷启动](PERSONA_DESIGN.md) · [通俗原理与后台说明](RUNTIME_GUIDE.md) · [本轮审查](REVIEW.md) · [时间记忆说明](MEMORY_DESIGN.md) · [性能记录](PERFORMANCE.md) · [GitHub发布步骤](GITHUB_RELEASE.md) · [发布清单](RELEASE_CHECKLIST.md) · [开源与产品计划](OPEN_SOURCE_PLAN.md)
+[English](README.en.md) · [AUL 原理](AUL_DESIGN.md) · [架构](ARCHITECTURE.md) · [角色与冷启动](PERSONA_DESIGN.md) · [记忆设计](MEMORY_DESIGN.md) · [使用与后台](RUNTIME_GUIDE.md) · [发布清单](RELEASE_CHECKLIST.md)
 
-本地优先、可解释的对话偏好学习引擎，附 Android 参考应用。当前是单用户实验性原型，不是已验证的成熟长期陪伴产品。
+核心想法叫 **AUL（AI User Learning）**：不是训练一个新模型，而是在聊天和反馈中积累可纠正的用户偏好，再把它变成下一轮 LLM 的交流策略。Python Core 可单独复用，Android 是目前的参考客户端。
 
-无需 Key 体验核心闭环（Python 3.11+）：
+当前是 **experimental／单用户原型**。数据和调度机制有离线回归；长期效果、真实模型质量和各品牌手机的后台可靠性尚未验证。配置远程接口后，选中的对话和记忆上下文会发送给该服务商；“本地优先”不等于模型也在本地运行。
+
+## 为什么做这个
+
+起点很简单：一个聊天对象如果永远只会在你发问后回一大段话，既不记得之前聊过什么，也不适应你的表达习惯，那换个聊天界面并没有解决多少问题。
+
+此前 ASM（Agent Software Map）的想法是让 Agent 记住如何使用软件。这里把“学软件”换成“学用户的交流偏好”：回复长短、主动程度、能否互相打趣、心情不好时需要怎样的回应。问卷只提供初始线索，后面的明确反馈与纠正继续改变这些判断，不把人定义死。
+
+这是一项可运行、可检查的探索，不是有研究依据的心理测试，也没有“越聊越像真人”或“省 40% token 保留 90% 效果”的实测结论。
+
+## 和普通聊天壳有什么不同
+
+- **学习怎么聊**：10 题起步、50 题可选补充；未回答的不当成事实。具体反馈（例如“太长了”）可以调整后续策略，并追溯到来源。
+- **记住聊过什么**：保留原文，按日／周／月整理；需要时按日期和关键词找回摘录，不把全部历史塞进每轮请求。
+- **短消息有节奏**：日常中文拆成独立气泡，逐条展示；观察本应用输入框，等用户停下后再回复，不读其他应用键盘。
+- **不只等你开口**：可以指定时间发送原文或到时生成话题，也有带频率上限、免打扰和通知门控的低频主动开场。生成的主动开场最多 3 条，不把长文一口气推过来。
+- **角色和用户分开记**：角色设定／虚构经历有独立的连续性记录，不混成用户事实；每轮只取需要的部分。
+- **机制可检查**：偏好证据、更新审计、原话来源和 token／延迟估算都能查看。系统不修改模型权重。
+
+### AUL 具体存什么
+
+| 层 | 回答的问题 | 不负责什么 |
+| --- | --- | --- |
+| Persona／角色档案 | 当前扮演怎样的虚构人物，已有设定如何保持连续 | 不能拿虚构经历冒充用户经历 |
+| AUL／用户学习层 | 用户偏好、当前状态，以及这些判断来自哪里 | 不是一份不可修改的人格诊断 |
+| Memory／聊天记忆 | 之前何时聊过什么，哪里能找到原话 | 摘要不是原始记录的替代品 |
+| Policy／本轮策略 | 这轮应该短一点、少追问，还是先认真回答问题 | 不保证模型每次都遵守 |
+
+“回答短点” → 有来源的证据 → AUL 的回复长度下调 → 下一轮提示更简短。
+泛泛的赞／踩目前只记录评价，不自动知道用户究竟喜欢哪项风格；实现细节和边界见 [AUL 设计](AUL_DESIGN.md)。
+
+## 无需 API Key 先看闭环
+
+Python 3.11+，Core 无第三方运行时依赖：
 
 ```sh
 python -m pip install -e .
@@ -66,6 +99,8 @@ Android 工程位于 `android/`，使用 Kotlin、Jetpack Compose、WorkManager�
 
 ### 两个发行版本
 
+**当前公开分发以 Full 为主，不上传 Locked APK。** Locked 源码保留用于开发与回归，不把它宣传成安全加锁版本。仓库公开源码不等于已发布正式签名 APK；体验包和正式版的剩余条件见 [发布清单](RELEASE_CHECKLIST.md)。
+
 | 版本 | applicationId | 行为 |
 |---|---|---|
 | Full | `com.adaptive.companion.full` | 高级设置始终可见；默认可停止的常驻模式 |
@@ -74,6 +109,8 @@ Android 工程位于 `android/`，使用 Kotlin、Jetpack Compose、WorkManager�
 表中为基础包名；当前 Debug APK 另加 `.debug` 后缀。两版数据隔离，不自动互相迁移。
 
 Locked 版预置管理员密码为 `MIOKIRISHIMA`。验证成功后，本次界面生命周期中的设置能力与 Full 版相同；Activity 重建（例如旋转或进程恢复）后重新上锁，高级路由也会复核。APK 仅保存固定 salt 和 PBKDF2 派生值，不包含密码明文；但预置共享密码只能作为功能入口，不能替代真正的设备级安全边界。
+
+应用与 Python 包统一叫 OpenWoven。新入口为 `openwoven`；旧 `adaptive_companion` 导入、`companion` 命令及 `COMPANION_*` 环境变量兼容。Android 保留原应用 ID、数据库与通知渠道以保持数据兼容；Full 显示为 OpenWoven Developer。角色昵称不受改名影响。
 
 ### 首次使用
 
@@ -202,7 +239,7 @@ python -m unittest discover -s tests -v
 
 可运行 `python examples/retrieval_benchmark.py` 检查合成历史检索成本，见 [性能记录](PERFORMANCE.md)。通知／声音／振动／周期反馈开关不再重建 Core，后台单条消息更新不再加载整页历史。
 
-已准备 Core 跨系统测试和手动 Android 检查，尚未在 GitHub 跑通，不挂“CI通过”徽章。Core CI 安装非 editable 的发行包并做隔离模式冒烟；Android CI 保留短期 Debug 产物与报告。首次安装/构建可能联网下载依赖；不需要模型 Key。见 [发布清单](RELEASE_CHECKLIST.md)。
+Core CI 安装非 editable 的发行包，在 Windows/Linux 与 Python 3.11/3.13 上做隔离冒烟和回归；当前结果见 [GitHub Actions](https://github.com/karurukaruru/OpenWoven/actions)。手动 Android CI 检查两版单测/Lint，只构建并保留 Full Debug 产物，不上传 Locked APK。首次安装/构建可能联网下载依赖；不需要模型 Key。见 [发布清单](RELEASE_CHECKLIST.md)。
 
 ## 隐私与限制
 

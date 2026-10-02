@@ -35,24 +35,24 @@ jobs:
         run: python scripts/release_preflight.py --check-index
       - name: Install the declared Android SDK packages
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
-      - name: Unit tests, lint and both Debug APKs
+      - name: Unit tests and lint for both editions; build Full only
         working-directory: android
         run: >-
           sh ./gradlew
           :app:testFullDebugUnitTest :app:testLockedDebugUnitTest
           :app:lintFullDebug :app:lintLockedDebug
-          :app:assembleFullDebug :app:assembleLockedDebug
+          :app:assembleFullDebug
           --no-daemon
       - name: Collect checksums
-        run: sha256sum android/app/build/outputs/apk/*/debug/*.apk
-      - name: Retain synthetic test reports and Debug builds
+        run: sha256sum android/app/build/outputs/apk/full/debug/*.apk
+      - name: Retain synthetic test reports and Full Debug build (no Locked APK)
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: android-debug-checks
+          name: android-full-debug-checks
           retention-days: 7
           if-no-files-found: warn
           path: |
-            android/app/build/outputs/apk/*/debug/*.apk
+            android/app/build/outputs/apk/full/debug/*.apk
             android/app/build/test-results/test*DebugUnitTest/*.xml
             android/app/build/reports/lint-results-*.xml

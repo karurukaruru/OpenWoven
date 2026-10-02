@@ -830,7 +830,7 @@ class SQLiteStore:
         if status:
             query += " WHERE status=?"
             params.append(status)
-        query += " ORDER BY scheduled_at ASC"
+        query += " ORDER BY scheduled_at ASC, rowid ASC"
         if limit is not None:
             query += " LIMIT ?"
             params.append(limit)

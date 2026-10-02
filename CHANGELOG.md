@@ -2,8 +2,8 @@
 
 ## Unreleased — planned v0.1.0 (experimental)
 
-No GitHub release has been published. First tag/version `0.1.0` is planned;
-release date and public links are pending.
+No tagged GitHub Release has been published. Repository visibility is a separate
+milestone; the first tag/version `0.1.0` is planned.
 
 - Rename the app, docs, distribution and CLI to OpenWoven; retain legacy Python
   entry points and Android identifiers for installation/data compatibility.
@@ -22,6 +22,10 @@ release date and public links are pending.
 - No-key demos, synthetic tests, package smoke checks, contribution templates,
   read-only CI/candidate workflows, runbook and draft release notes.
 - Approved-source inventory and selected artifact checksums. MIT holder: karurukaruru.
+- AUL (AI User Learning) design and blog-inspired Chinese/English introduction,
+  with explicit limits on feedback attribution and unvalidated long-term effects.
+- Stable scheduled-message ordering when creation/due timestamps tie, including
+  Windows clock-resolution regressions; Full-only Android artifact distribution.
 - Three Mermaid architecture diagrams with source maps; the architecture document
   and Android ProGuard configuration are required in the source-release inventory.
 
