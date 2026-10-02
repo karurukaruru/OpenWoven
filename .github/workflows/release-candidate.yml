@@ -1,0 +1,54 @@
+name: Source release candidate (manual, no publication)
+
+# Only prepare downloadable review artifacts. No provider key or signing key.
+# No repository writes, GitHub Release creation, PyPI upload or APK distribution.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-candidate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - name: Check source inventory, index and finalized MIT notice
+        run: python scripts/release_preflight.py --for-publication --check-index
+      - name: Build the candidate wheel
+        run: python -m pip --isolated wheel --no-deps --wheel-dir release-dist/assets .
+      - name: Verify metadata, license and isolated offline demo
+        run: python scripts/package_smoke.py release-dist/assets/openwoven-*.whl --for-publication
+      - name: Install and run regression tests without a model provider
+        run: |
+          python -m pip --isolated install --no-index --no-deps --find-links release-dist/assets openwoven
+          python -m unittest discover -s tests -v
+          python examples/calendar_memory_demo.py
+      - name: Generate review inventory and asset checksums
+        run: >-
+          python scripts/release_preflight.py --for-publication --check-index
+          --asset release-dist/assets/openwoven-*.whl
+          --output release-dist/report
+      - name: Retain candidate assets and review records (not a public Release)
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: source-candidate-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            release-dist/assets/*.whl
+            release-dist/report/preflight.json
+            release-dist/report/SOURCE_FILES.txt
+            release-dist/report/SHA256SUMS.txt

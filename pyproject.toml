@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openwoven"
+version = "0.1.0"
+description = "OpenWoven: local-first, explainable preference learning and calendar memory"
+readme = "README.en.md"
+requires-python = ">=3.11"
+dependencies = []
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["companion", "memory", "personalization", "android", "llm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.scripts]
+openwoven = "adaptive_companion.cli:main"
+companion = "adaptive_companion.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["openwoven*", "adaptive_companion*"]
+namespaces = false

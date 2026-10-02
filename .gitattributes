@@ -1,0 +1,12 @@
+* text=auto
+*.py text eol=lf
+*.kt text eol=lf
+*.kts text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.apk binary
+*.whl binary

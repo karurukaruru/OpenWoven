@@ -1,0 +1,47 @@
+name: Core tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.13']
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check approved source inventory (local-draft license allowed)
+        run: python scripts/release_preflight.py --check-index
+      - name: Build the distribution
+        run: python -m pip wheel --no-deps --wheel-dir dist .
+      - name: Verify wheel metadata, license and isolated offline demo
+        run: python scripts/package_smoke.py
+      - name: Install the built distribution, not an editable source link
+        run: python -m pip install --no-index --no-deps --find-links dist openwoven
+      - run: python -m unittest discover -s tests -v
+      - name: Offline learning-loop demonstration
+        run: python -I -X utf8 -m openwoven --db ":memory:" demo
+      - name: Offline calendar recall and deletion demonstration
+        run: python examples/calendar_memory_demo.py
+      - name: Synthetic retrieval benchmark (timings are informational)
+        run: python examples/retrieval_benchmark.py --messages 1500 --repeats 5

@@ -1,0 +1,58 @@
+name: Android offline-model checks (manual)
+
+# Builds dependencies over the network, but never contacts a model provider.
+# No signing secrets, deployment, repository writes or GitHub Release publication.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  debug:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONUTF8: '1'
+      COMPANION_BUILD_PYTHON: python
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6
+      - name: Check approved source inventory (local-draft license allowed)
+        run: python scripts/release_preflight.py --check-index
+      - name: Install the declared Android SDK packages
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Unit tests, lint and both Debug APKs
+        working-directory: android
+        run: >-
+          sh ./gradlew
+          :app:testFullDebugUnitTest :app:testLockedDebugUnitTest
+          :app:lintFullDebug :app:lintLockedDebug
+          :app:assembleFullDebug :app:assembleLockedDebug
+          --no-daemon
+      - name: Collect checksums
+        run: sha256sum android/app/build/outputs/apk/*/debug/*.apk
+      - name: Retain synthetic test reports and Debug builds
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: android-debug-checks
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            android/app/build/outputs/apk/*/debug/*.apk
+            android/app/build/test-results/test*DebugUnitTest/*.xml
+            android/app/build/reports/lint-results-*.xml
