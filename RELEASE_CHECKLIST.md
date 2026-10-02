@@ -1,7 +1,9 @@
 # 首次公开发布清单 / First public release
 
 适合筹备 **experimental source release**，不称成熟产品。本文件是待办，
-不是“全部通过”证明；源码已推送到 `karurukaruru/OpenWoven`。源码公开与正式 APK 分发
+不是“全部通过”证明；2026-10-02 源码仓库
+[`karurukaruru/OpenWoven`](https://github.com/karurukaruru/OpenWoven) 已转公开。
+源码公开与正式 APK 分发
 是两个不同里程碑。所有者已选择 MIT，确认版权署名 `karurukaruru` 与
 目标仓库 `karurukaruru/OpenWoven`。
 
@@ -27,11 +29,14 @@
   本次检查初始两次提交的 166 个源码 blob、提交邮箱与当前 160 项源码清单；
   未发现常见密钥特征，未纳入私人数据／构建产物，提交邮箱为 GitHub noreply。
   有限模式检查不等于完备安全审计，后续新增提交仍需复查。
-- [ ] 建立私下安全报告渠道并更新 `SECURITY.md`。可在目标仓库启用
+- [x] 建立私下安全报告渠道并更新 `SECURITY.md`。目标仓库已启用
   [private vulnerability reporting](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository)。
-  当前没有已启用的渠道或响应时限承诺。
-- [ ] 在 GitHub 跑通 Core workflow：Windows/Linux、Python 3.11/3.13、发行包安装、
+  已由 API 复核 `enabled=true`；不承诺固定响应时限。
+- [x] 在 GitHub 跑通 Core workflow：Windows/Linux、Python 3.11/3.13、发行包安装、
   隔离模式无 Key Demo、全部回归和合成检索记录。不仅凭本地测试挂绿徽章。
+  修复提交 `46f2d21` 的 [四组 Core CI](https://github.com/karurukaruru/OpenWoven/actions/runs/37002623203)
+  通过；同提交的 [源码候选包检查](https://github.com/karurukaruru/OpenWoven/actions/runs/37002692407)
+  通过。此后新提交仍需查看自己的检查结果。
 - [x] 完成版权署名后重新构建 wheel，并运行
   `python scripts/package_smoke.py --for-publication`。默认检查允许本地草稿，
   发布模式拒绝未完成的版权占位；这仍不是秘密扫描或许可证法律审查。
@@ -46,6 +51,8 @@
 另有手动 Source release candidate 工作流：版权完成后构建/检查wheel，生成
 短期候选 artifact；无仓库写权限、不自动公开 Release。执行状态看 Actions，
 不要把已配置等同于已运行通过。
+本次手动源码候选包已运行通过；手动 Android 托管流程未运行，本地两版各 98 项
+单测、Lint 0 问题和 Full Debug 构建通过，不伪写成真机／托管 Android 验收。
 
 ## 2. Android 体验版与正式版分开
 

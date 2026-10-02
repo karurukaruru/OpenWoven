@@ -25,6 +25,17 @@ Full Debug APK，新增回归禁止 Locked APK 路径；Locked 源码保留，�
 未调用真实模型，也未做新增真机测试；托管结果与实际公开状态以 GitHub 为准。
 源码公开与正式签名 APK／应用商店发布仍然分开，不把后者的待办标成已经完成。
 
+修复提交 `46f2d21` 的 [Core CI 四组](https://github.com/karurukaruru/OpenWoven/actions/runs/37002623203)
+全部通过，同提交的 [源码候选包工作流](https://github.com/karurukaruru/OpenWoven/actions/runs/37002692407)
+通过。再次检查三次历史的 182 个源码 blob，未发现有限规则覆盖的凭据特征。
+Android 检查复核 Full/Locked 各 98 项单测、Lint 0 问题，Full 已重新构建。
+新本地 Full 体验包保留为 `dist/OpenWoven-0.1.0-full-debug-source-preview.apk`，SHA256
+`efd5b8fdabdba638e6ceafa6af0dda02f88e8beda8367cb82b2ba748275c04ae`；没有上传 APK。
+
+按所有者授权将仓库转公有，并启用 private vulnerability reporting；API 验证
+`private=false`、`enabled=true`，未认证读取仓库与 main 成功，MIT 已被 GitHub 识别。
+安全文档和发布状态已更新；没有创建标签、GitHub Release、PyPI 发布或商店发行。
+
 ## 2026-10-02 主动开场短消息修复与 GitHub 重连检查
 
 确认主动消息原先按话题分类，含代码/建议等词时会绕过日常分条；超过600字也会

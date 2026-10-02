@@ -30,6 +30,12 @@ Before publishing, inspect the staged files for keys, real conversations,
 databases including WAL/SHM files, private endpoints, and production signing keys.
 Ignore rules help future commits; they do not clean already tracked files/history.
 
-No security-report address or private GitHub reporting channel is configured yet.
-The owner must establish one before a public release. Do not disclose credentials
-or exploitable private user data in a public issue.
+## Reporting a vulnerability
+
+Private vulnerability reporting is enabled for the public OpenWoven repository.
+Use [Report a vulnerability](https://github.com/karurukaruru/OpenWoven/security/advisories/new)
+for security reports; ordinary reproducible bugs can use Issues.
+Do not disclose credentials, real conversations or exploitable private user data
+in a public issue. Submit a minimal synthetic reproduction, affected version and
+expected/actual behavior. No fixed response time or professional security support
+is promised for this experimental project.

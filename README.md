@@ -1,5 +1,7 @@
 # OpenWoven
 
+[![Core tests](https://github.com/karurukaruru/OpenWoven/actions/workflows/core-tests.yml/badge.svg?branch=main)](https://github.com/karurukaruru/OpenWoven/actions/workflows/core-tests.yml)
+
 一个会记住聊过什么、逐步学习你喜欢怎么聊，并能主动找你聊两句的开源 Android 聊天项目。
 
 [English](README.en.md) · [AUL 原理](AUL_DESIGN.md) · [架构](ARCHITECTURE.md) · [角色与冷启动](PERSONA_DESIGN.md) · [记忆设计](MEMORY_DESIGN.md) · [使用与后台](RUNTIME_GUIDE.md) · [发布清单](RELEASE_CHECKLIST.md)
@@ -7,6 +9,8 @@
 核心想法叫 **AUL（AI User Learning）**：不是训练一个新模型，而是在聊天和反馈中积累可纠正的用户偏好，再把它变成下一轮 LLM 的交流策略。Python Core 可单独复用，Android 是目前的参考客户端。
 
 当前是 **experimental／单用户原型**。数据和调度机制有离线回归；长期效果、真实模型质量和各品牌手机的后台可靠性尚未验证。配置远程接口后，选中的对话和记忆上下文会发送给该服务商；“本地优先”不等于模型也在本地运行。
+
+源码已按 MIT 公开。当前没有正式签名 APK 或 tagged Release；公开二进制只考虑 Full，不上传 Locked APK。漏洞请走 [私下报告入口](https://github.com/karurukaruru/OpenWoven/security/advisories/new)，不要在 Issue 贴密钥或真实聊天。
 
 ## 为什么做这个
 

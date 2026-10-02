@@ -1,5 +1,7 @@
 # OpenWoven
 
+[![Core tests](https://github.com/karurukaruru/OpenWoven/actions/workflows/core-tests.yml/badge.svg?branch=main)](https://github.com/karurukaruru/OpenWoven/actions/workflows/core-tests.yml)
+
 An experimental Android chat app that remembers conversations, learns how you like to talk, and can start a conversation of its own.
 
 [中文](README.md) · [AUL design](AUL_DESIGN.md) · [Architecture](ARCHITECTURE.md) · [Performance](PERFORMANCE.md) · [GitHub publishing](GITHUB_RELEASE.md) · [Release checklist](RELEASE_CHECKLIST.md) · [Changelog](CHANGELOG.md)
@@ -12,6 +14,11 @@ Status: experimental, single-user prototype. Automated checks validate state
 transitions, not long-term user satisfaction or real-model reply quality.
 With a remote provider configured, selected conversation and memory context
 is sent to that provider. Local-first does not mean the model runs on-device.
+
+Source is public under MIT. There is no production-signed APK or tagged Release
+yet; public Android binary distribution is Full-only, with no Locked APK uploads.
+Security reports use the [private reporting channel](https://github.com/karurukaruru/OpenWoven/security/advisories/new),
+not public Issues containing credentials or personal conversations.
 
 ## Why this exists
 

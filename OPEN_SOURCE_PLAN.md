@@ -4,7 +4,7 @@
 
 具体发布步骤见 [GitHub发布指南](GITHUB_RELEASE.md)，首版说明见
 [发布草稿](RELEASE_NOTES.md)，AUL 的概念、实现与边界见 [AUL 设计](AUL_DESIGN.md)。
-源码已推送到 `karurukaruru/OpenWoven`；公开状态和各次托管结果以
+源码仓库已于 2026-10-02 转公开；当前可见状态和各次托管结果以
 [仓库](https://github.com/karurukaruru/OpenWoven) 与 Actions 为准。
 
 值得整理成公开的实验性项目；还不足以称为成熟 OpenWoven 产品。推荐定位：
