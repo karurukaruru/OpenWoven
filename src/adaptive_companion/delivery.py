@@ -5,6 +5,12 @@ import re
 from dataclasses import asdict, dataclass
 
 
+PROACTIVE_MAXIMUM_PARTS = 3
+PROACTIVE_CJK_CHARACTERS = 48
+PROACTIVE_LATIN_CHARACTERS = 120
+_CHAT_ATOMS = re.compile(r'https?://[^\s。！？，；]+|“[^”\n]*”|「[^」\n]*」|『[^』\n]*』|"[^"\n]*"')
+
+
 @dataclass(slots=True)
 class DeliveryPart:
     text: str
@@ -50,6 +56,18 @@ class DeliveryPlanner:
         if not clean:
             return DeliveryPlan("immediate", [])
         rng = random.Random(seed or clean)
+        if policy and policy.get('proactive'):
+            # Openings are deliberately bounded, not lossless document delivery.
+            # Never let topic classification, quotations, length, URLs or a
+            # probability setting turn an unsolicited opening into an essay.
+            parts = self._proactive_chunks(clean)[:min(PROACTIVE_MAXIMUM_PARTS, max(1, self.settings.maximum_parts))]
+            planned = []
+            for index, part in enumerate(parts):
+                raw = self.settings.base_delay_ms + len(part) * self.settings.delay_per_character_ms + rng.randint(0, max(0, self.settings.random_jitter_ms))
+                wait = max(0, min(900, self.settings.maximum_delay_ms, raw) - max(0, generation_latency_ms)) if index == 0 else self._clamp_delay(raw)
+                planned.append(DeliveryPart(part, wait if self.settings.enabled else 0))
+            mode = 'split' if len(planned) > 1 else 'delayed' if planned and planned[0].delay_ms else 'immediate'
+            return DeliveryPlan(mode, planned)
         # A small rhythm for casual chat only; a slow model has already supplied
         # the wait. Never delay distress/technical answers or split code blocks.
         casual = policy and policy.get("context") in {"casual_chat", "bored", "sharing_good_news"}
@@ -79,6 +97,49 @@ class DeliveryPlanner:
             )
             planned.append(DeliveryPart(part, (first_delay if index == 0 else self._clamp_delay(raw)) if self.settings.enabled else 0))
         return DeliveryPlan("split", planned)
+
+    @staticmethod
+    def _proactive_chunks(text: str) -> list[str]:
+        # Mask complete URLs/quotes before recognizing send boundaries; never
+        # split a decimal, time, quoted sentence or URL into broken fragments.
+        atoms = []
+        def mask(match: re.Match) -> str:
+            atoms.append(match.group())
+            return '\x00' + str(len(atoms) - 1) + '\x00'
+        def restore(value: str) -> str:
+            return re.sub(r'\x00(\d+)\x00', lambda match: atoms[int(match[1])], value)
+        masked = _CHAT_ATOMS.sub(mask, text.replace('\x00', ''))
+        masked = re.sub(r'(?m)^\s*(?:#{1,6}\s+|[-*]\s+|\d+[.)]\s+)', '', masked)
+        sentences = re.split(r'(?<=[。！？!?])(?![。！？!?])\s*|(?<=\.)\s+|\n+|(?<=[\u3040-\u30ff\u3400-\u9fff])\s+(?=[\u3040-\u30ff\u3400-\u9fff])', masked)
+        result = []
+        for sentence in sentences:
+            sentence = re.sub(r'^\s*(?:#{1,6}\s+|[-*]\s+|\d+[.)]\s+)', '', sentence).strip()
+            restored = restore(sentence)
+            limit = PROACTIVE_CJK_CHARACTERS if re.search(r'[\u3040-\u30ff\u3400-\u9fff]', restored) else PROACTIVE_LATIN_CHARACTERS
+            clauses = [sentence] if len(restored) <= limit else re.split(r'[，；;]\s*|(?<!\d),(?!\d)\s*', sentence)
+            for clause in clauses:
+                part = restore(clause).strip()
+                if re.search(r'[\u3040-\u30ff\u3400-\u9fff]', part):
+                    part = part.rstrip('。')
+                if not part:
+                    continue
+                if len(part) > limit:
+                    # Last resort for a model ignoring every boundary: retain
+                    # a bounded prefix, rather than glue the entire tail back.
+                    end = limit - 1
+                    for atom in _CHAT_ATOMS.finditer(part):
+                        if atom.start() < end < atom.end():
+                            end = atom.start()
+                            break
+                    prefix = part[:end]
+                    if not re.search(r'[\u3040-\u30ff\u3400-\u9fff]', prefix):
+                        prefix = prefix.rsplit(' ', 1)[0] if ' ' in prefix else ''
+                    part = prefix.rstrip(' ，,；;') + '…' if prefix.strip() else ''
+                if part:
+                    result.append(part)
+                    if len(result) == PROACTIVE_MAXIMUM_PARTS:
+                        return result
+        return result
 
     @staticmethod
     def _chat_chunks(text: str) -> list[str]:

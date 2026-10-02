@@ -15,6 +15,10 @@ release date and public links are pending.
   replies and independently paced chat bubbles.
 - Persistent explicit/proactive scheduling, permissions, quiet hours and
   notification outbox; best-effort resident/system background modes.
+- Generated proactive openings always use at most three short, independently
+  paced bubbles, even for technical/advice topics or overlong model output.
+  Saved history/notifications retain only the bounded text; omitted fictional
+  backstory is not archived. Explicit scheduled original text stays unchanged.
 - No-key demos, synthetic tests, package smoke checks, contribution templates,
   read-only CI/candidate workflows, runbook and draft release notes.
 - Approved-source inventory and selected artifact checksums. MIT holder: karurukaruru.

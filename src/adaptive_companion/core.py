@@ -28,7 +28,7 @@ from .storage import SQLiteStore
 from .localization import local_text
 from .attachments import Attachments
 from .turns import composer_gate
-from .character_book import CharacterBook, CharacterBookFull, CharacterMetadataError, parse_character_response
+from .character_book import CharacterBook, CharacterBookFull, CharacterMetadataError, parse_character_response, normalized as normalized_character_fact
 
 
 class CompanionCore:
@@ -374,6 +374,7 @@ class CompanionCore:
         if not item:
             return {"sent": False, "reason": "not found"}
         delayed = item.topic.startswith("reply:")
+        generated_proactive = not delayed and not item.topic.startswith(('custom:text:', 'reminder:'))
         batched = delayed and item.reason.startswith('batched user turn')
         revision = composer_gate.revision(item.conversation_id)
         fingerprint = hashlib.sha256(json.dumps([self.context_builder.persona,
@@ -396,8 +397,14 @@ class CompanionCore:
         if item.topic.startswith(('checkin:', 'custom:topic:')) and not allow_casual:
             return {'sent': False, 'reason': 'notifications unavailable', 'status': 'pending'}
         aul = self.learning.aggregator.aggregate()
-        instruction = item.draft_intent if delayed else f"Write one natural proactive companion message. Intent: {item.draft_intent}."
+        instruction = item.draft_intent if delayed else f"Write a brief proactive opening, not a complete answer. Intent: {item.draft_intent}."
         policy = self.policy_builder.build(instruction, aul)
+        if generated_proactive:
+            # The saved topic is not a fresh request for advice/a document.
+            policy.update(proactive=True, reply_length=min(policy['reply_length'], .30),
+                          question_frequency=min(policy['question_frequency'], .40),
+                          advice_frequency=min(policy['advice_frequency'], .10))
+            policy.pop('message_format', None)
         self.store.set_metadata('last_policy', json.dumps(policy, ensure_ascii=False))
         memories = self.retriever.retrieve(item.draft_intent, limit=3, exclude_message_ids=set(item.source_memory_ids) if delayed else None)
         recent = self.store.list_messages(item.conversation_id, limit=64 if batched else 8)
@@ -466,6 +473,17 @@ class CompanionCore:
                 return {"sent": False, "reason": reason}
             delivery_policy = {'context': 'serious_discussion'} if item.topic.startswith('custom:text:') else policy
             plan = self.delivery.plan(response, item.id, delivery_policy, metric["latency_ms"] if metric else 0).to_dict()
+            if generated_proactive:
+                if not plan['parts']:
+                    plan = self.delivery.plan(self._local_text('proactive_opening'), item.id, delivery_policy).to_dict()
+                visible_response = '\n'.join(part['text'] for part in plan['parts'])
+                if metric and metric.get('character_update'):
+                    # Omitted text cannot become a remembered role experience.
+                    visible_facts = normalized_character_fact(visible_response)
+                    update = metric['character_update']
+                    update['facts'] = [fact for fact in update['facts']
+                                       if normalized_character_fact(fact['value']) in visible_facts]
+                response = visible_response
             try:
                 assistant = self.store.complete_scheduled_delivery(item.id, response, reply_to_id=source_id,
                     delivery_plan=plan, character_update=metric.get('character_update') if metric else None)

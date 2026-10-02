@@ -3,6 +3,7 @@ from __future__ import annotations
 
 LANGUAGES = ("Simplified Chinese", "Traditional Chinese", "Japanese", "American English")
 STRINGS = {
+    "proactive_opening": ("最近怎么样？", "最近怎麼樣？", "最近どう？", "How's it going?"),
     "casual_checkin": ("上次聊的那件事，有空再接着聊呀。", "上次聊的那件事，有空再接著聊呀。", "この前の話、また時間があるときに続けましょう。", "We can pick up our last conversation whenever you feel like it."),
     "exam": ("你今天那个考试后来怎么样？", "你今天那個考試後來怎麼樣？", "今日の試験はどうでしたか？", "How did your exam go today?"),
     "interview": ("你今天的面试后来还顺利吗？", "你今天的面試後來還順利嗎？", "今日の面接はうまくいきましたか？", "How did your interview go today?"),

@@ -38,6 +38,32 @@ class ReplyBubbleDeliveryTest {
         assertEquals("reply_2" to 3000L, seen.last())
     }
 
+    @Test fun proactiveBackgroundHintUsesTheSamePacedLaneAndDoesNotExposeWholeText() = runTest {
+        val delivery = ReplyBubbleDelivery()
+        // A proactive opening has no user reply target. Worker/resident/outbox
+        // hints still enter the exact same persisted-message delivery lane.
+        val opening = reply("proactive").copy(replyToId = null, replySourceIds = emptyList(),
+            content = "最近怎么样？\n那本书看完了吗？\n有空再聊",
+            deliveryParts = listOf(DeliveryPart("最近怎么样？", 0),
+                DeliveryPart("那本书看完了吗？", 1100), DeliveryPart("有空再聊", 900)))
+        var visible = emptyList<ChatMessage>()
+        launch {
+            delivery.present(opening.id, { opening }, { AppSettings() }, { true },
+                { bubble -> visible.any { it.id == bubble.id } }, {},
+                { _, bubble -> visible = visible + bubble })
+        }
+        runCurrent()
+        visible = delivery.mergeHistory(opening.bubbles(), visible)
+        assertEquals(listOf("最近怎么样？"), visible.map { it.content })
+        advanceTimeBy(1099); runCurrent()
+        assertEquals(1, visible.size)
+        advanceTimeBy(1); runCurrent()
+        assertEquals(listOf("最近怎么样？", "那本书看完了吗？"), visible.map { it.content })
+        advanceTimeBy(900); runCurrent()
+        assertEquals(opening.bubbles(), visible)
+        assertTrue(visible.all { it.persistedId() == opening.id })
+    }
+
     @Test fun retryRefreshCannotRevealAnyNewBubbleBeforeItsWait() = runTest {
         val delivery = ReplyBubbleDelivery()
         val message = reply(first = 350)

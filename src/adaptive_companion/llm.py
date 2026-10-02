@@ -46,7 +46,14 @@ def compile_dialogue_prompt(context: dict[str, Any]) -> str:
         sections.append('Default reply language: ' + persona['language'] + '. Use another language if the user explicitly requests it.')
     if persona.get('relationship'):
         sections.append('Keep the selected relationship and identity stable while adapting tone to turn guidance.')
-    if context['interaction_policy'].get('message_format') == 'document':
+    if context.get('proactive_intent'):
+        sections.append('Proactive opening: 1–3 short messages, each at most one brief sentence on its own line. '
+                        'At most 48 characters per Chinese/Japanese message or 120 characters per English message. '
+                        'Start lightly and leave room for a reply; at most one question. '
+                        'Even a technical, emotional or advice-related topic is an opening, not a request for an essay, solution or counseling monologue. '
+                        'No headings, lists, signatures or unsolicited identity disclaimers. '
+                        'Chinese chat example: 想起你今天有考试\n后来考得怎么样？')
+    elif context['interaction_policy'].get('message_format') == 'document':
         sections.append('Produce the requested document in its intended paragraph/list format, not as separate chat messages.')
     elif context['interaction_policy'].get('context') in {'casual_chat', 'bored', 'sharing_good_news'}:
         sections.append('Everyday chat: 1–3 brief, fitting messages; no essays, counseling monologue, repetitive acknowledgments or constant questions. '
@@ -210,7 +217,8 @@ class OpenAICompatibleProvider(LLMProvider):
 
     def _output_budget(self, context: dict[str, Any]) -> int:
         preference = float(context["interaction_policy"]["reply_length"])
-        return min(self.max_tokens, max(96, round(self.max_tokens * (0.22 + 0.78 * preference))))
+        budget = min(self.max_tokens, max(96, round(self.max_tokens * (0.22 + 0.78 * preference))))
+        return min(budget, 256) if context.get('proactive_intent') else budget
 
     def _record_usage(self, usage: Any) -> None:
         if not isinstance(usage, dict):
