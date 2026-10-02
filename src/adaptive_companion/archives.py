@@ -8,19 +8,35 @@ from .models import Message, utc_now
 
 
 class CalendarArchives:
-    def __init__(self, store, summarize):
+    def __init__(self, store, summarize, weekly_summarizer=None):
         self.store, self.summarize = store, summarize
+        self.weekly_summarizer = weekly_summarizer
 
     def maintain(self, now: datetime | None = None, limit: int = 64) -> dict:
         today = self.store.local_today(now)
         counts = dict(daily=0, weekly=0, monthly=0)
         with self.store.connection() as conn:
+            if self.weekly_summarizer:
+                # Upgrade older local weekly archives lazily when a model is configured.
+                conn.execute("""INSERT OR IGNORE INTO archive_dirty
+                    SELECT a.kind,a.period_start,a.period_end FROM archive_periods a
+                    JOIN memories m ON m.id=a.memory_id WHERE a.kind='weekly'
+                    AND coalesce(json_extract(m.content_json,'$.summary_method'),'') != 'llm'
+                    AND a.period_end < ? ORDER BY a.period_start LIMIT 16""", (today,))
+                conn.commit()
             pending = conn.execute(
                 """SELECT * FROM archive_dirty WHERE period_end < ?
                 ORDER BY CASE kind WHEN 'daily' THEN 0 WHEN 'weekly' THEN 1 ELSE 2 END,
                 period_start LIMIT ?""", (today, max(1, min(256, limit))),
             ).fetchall()
+        weekly_attempted = False
         for item in pending:
+            if item['kind'] == 'weekly' and self.weekly_summarizer:
+                if not self.weekly_summarizer.ready(item['period_start'], item['period_end']):
+                    continue
+                if weekly_attempted:
+                    continue
+                weekly_attempted = True
             if self.seal(item['kind'], item['period_start'], item['period_end'], today):
                 counts[item['kind']] += 1
         with self.store.connection() as conn:
@@ -52,7 +68,30 @@ class CalendarArchives:
                 return True
             messages = [Message(**dict(r)) for r in rows]
             evidence = self.store.evidence_for_sources([m.id for m in messages if m.role == 'user'])
-            summary = self.summarize(messages, evidence)
+            snapshot = [dict(r) for r in rows]
+            existing = conn.execute('SELECT content_json FROM memories WHERE kind=? AND period_key=?',
+                                   (kind, f'{start}..{end}')).fetchone() if kind == 'weekly' else None
+            dirty = conn.execute('SELECT 1 FROM archive_dirty WHERE kind=? AND period_start=? AND period_end=?', (kind, start, end)).fetchone()
+            if existing and not dirty and (not self.weekly_summarizer or json.loads(existing[0]).get('summary_method') == 'llm'):
+                return True
+        summary = self.summarize(messages, evidence)
+        method = 'local structured evidence + quotations; no model call'
+        if kind == 'weekly' and self.weekly_summarizer:
+            generated = self.weekly_summarizer.summarize(messages, evidence, start, end)
+            if generated is None:
+                return False
+            summary = {'summary': generated, **summary}
+            method = 'llm'
+        # Network work is outside the store lock. Revalidate all inputs before
+        # committing so deletion, late evidence or unfinished learning cannot
+        # resurrect stale data or consume its dirty marker.
+        with self.store.connection() as conn:
+            current = conn.execute("""SELECT m.* FROM messages m JOIN message_calendar c ON c.message_id=m.id
+                WHERE c.local_day BETWEEN ? AND ? AND m.role IN ('user','assistant')
+                ORDER BY m.timestamp,m.rowid""", (start, end)).fetchall()
+            if [dict(r) for r in current] != snapshot or self.store.evidence_for_sources(
+                    [m.id for m in messages if m.role == 'user']) != evidence:
+                return False
             users = [m for m in messages if m.role == 'user']
             sources = {e.source_message_id for e in evidence}
             salient = sorted(users, key=lambda m: (m.id in sources, len(m.content.strip()) >= 12,
@@ -67,7 +106,7 @@ class CalendarArchives:
             summary = {k: self._unique(v)[:12] if isinstance(v, list) else v for k, v in summary.items()}
             summary.update(period_start=start, period_end=end, headline=start if start == end else f'{start} 至 {end}',
                            highlights=highlights, learning_incomplete=any(m.learning_status == 'failed' for m in users),
-                           summary_method='local structured evidence + quotations; no model call')
+                           summary_method=method)
             key = start if kind == 'daily' else start[:7] if kind == 'monthly' else f'{start}..{end}'
             memory_id = self.store.upsert_memory(
                 kind, key, summary, messages[0].id, messages[-1].id, summary.get('active_topics', [])[:8],
@@ -93,6 +132,8 @@ class CalendarArchives:
                              (memory_id, start, end))
             conn.execute('DELETE FROM archive_dirty WHERE kind=? AND period_start=? AND period_end=?', (kind, start, end))
             conn.commit()
+            if kind == 'weekly' and self.weekly_summarizer:
+                self.store.set_metadata(f'weekly_summary_retry:{start}..{end}', '')
             return True
 
     def list(self, kind='daily', limit=50):

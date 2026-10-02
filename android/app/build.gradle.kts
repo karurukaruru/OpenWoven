@@ -112,3 +112,12 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
+// Read-only inventory used when preparing binary redistribution notices.
+tasks.register("printRuntimeInventory") {
+    doLast {
+        configurations.getByName("fullDebugRuntimeClasspath").resolvedConfiguration.resolvedArtifacts
+            .map { it.moduleVersion.id.toString() }.distinct().sorted()
+            .forEach { println("RUNTIME $it") }
+    }
+}

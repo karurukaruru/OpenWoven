@@ -16,12 +16,15 @@ class MemoryManager:
     def __init__(
         self, store: SQLiteStore, message_threshold: int = 12,
         token_threshold: int = 5400, minimum_density: float = 0.12,
+        weekly_generate=None,
     ):
         self.store = store
         self.message_threshold = message_threshold
         self.token_threshold = token_threshold
         self.minimum_density = minimum_density
-        self.archives = CalendarArchives(store, self._structured_summary)
+        from .weekly_summary import WeeklySummarizer
+        self.weekly_summarizer = WeeklySummarizer(store, weekly_generate) if weekly_generate else None
+        self.archives = CalendarArchives(store, self._structured_summary, self.weekly_summarizer)
 
     def maintain(self, now: datetime | None = None, limit: int = 64) -> dict:
         return self.archives.maintain(now, limit)
@@ -36,7 +39,7 @@ class MemoryManager:
                      if a['period_start'] == start.isoformat()), None)
 
     def maybe_create_rolling_summary(self, conversation_id: str) -> dict[str, Any] | None:
-        # All summary work is local. Keep its read/commit/cursor atomic with a
+        # Rolling summaries are local. Keep their read/commit/cursor atomic with a
         # concurrent message deletion or observer commit.
         with self.store.connection():
             return self._create_rolling_summary(conversation_id)
@@ -123,6 +126,18 @@ class MemoryManager:
         return content if memory_id else None
 
     def consolidate_weekly(self, week_end: str | None = None) -> dict[str, Any] | None:
+        if self.weekly_summarizer:
+            # Model-written archives use completed calendar weeks, including the
+            # CLI entry point; never bypass this with the legacy local merger.
+            from .calendar_time import week_range
+            target = datetime.fromisoformat(week_end or self.store.local_today()).date()
+            if week_end is None:
+                target -= timedelta(days=target.weekday() + 1)
+            start, end = week_range(target)
+            self.maintain()
+            self.archives.seal('weekly', start.isoformat(), end.isoformat())
+            return next((a['content'] for a in self.archives.list('weekly', 200)
+                         if a['period_start'] == start.isoformat()), None)
         end = datetime.fromisoformat(week_end).date() if week_end else datetime.fromisoformat(self.store.local_today()).date()
         start = end - timedelta(days=6)
         daily = [m for m in self.store.list_memories("daily", limit=100)

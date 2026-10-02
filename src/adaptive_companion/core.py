@@ -72,6 +72,7 @@ class CompanionCore:
         self.memory = MemoryManager(
             self.store, message_threshold=summary_message_threshold,
             token_threshold=summary_token_threshold,
+            weekly_generate=self._generate_weekly_summary if type(self.provider).generate_memory_summary is not LLMProvider.generate_memory_summary else None,
         )
         self.learning = LearningLoop(
             self.store, observer=observer,
@@ -648,15 +649,16 @@ class CompanionCore:
                 raise ValueError("model returned an empty or non-text response")
         except Exception as exc:
             latency = round((time.perf_counter() - started) * 1000)
+            usage = getattr(self.provider, 'request_usage', {}) if kind == 'memory_summary' else {}
             self.store.record_generation_metric(
                 kind=kind, source_id=source_id, result_message_id=None,
                 provider=provider_name, model=model,
-                prompt_tokens=prompt_estimate, completion_tokens=0,
-                latency_ms=latency, status="failed", error=str(exc),
+                prompt_tokens=usage.get('prompt_tokens', prompt_estimate), completion_tokens=usage.get('completion_tokens', 0),
+                latency_ms=latency, status="failed", error=type(exc).__name__ if kind == 'memory_summary' else str(exc),
             )
             raise
         latency = round((time.perf_counter() - started) * 1000)
-        usage = getattr(self.provider, "last_usage", {}) or {}
+        usage = getattr(self.provider, "request_usage", getattr(self.provider, "last_usage", {})) or {}
         usage = usage if isinstance(usage, dict) else {}
         reported = {
             key: value for key, value in usage.items()
@@ -671,6 +673,16 @@ class CompanionCore:
             "latency_ms": latency, "status": "success", "error": None,
             "usage_source": "provider" if len(reported) == 2 else "mixed" if reported else "estimated",
         }
+
+    def _generate_weekly_summary(self, prompt: str, source_id: str) -> str:
+        response, metric = self._run_generation(lambda: self.provider.generate_memory_summary(prompt),
+            estimate_tokens(prompt) + 180, 'memory_summary', source_id)
+        if len(response) > 6000:
+            metric.update(status='failed', error='memory summary exceeded character limit')
+            self._record_generation(metric, None)
+            raise ValueError('memory summary exceeded character limit')
+        self._record_generation(metric, None)
+        return response.strip()
 
     def _record_generation(self, metric: dict[str, Any], result_message_id: str | None) -> None:
         # The sidecar may live in a held-turn cache, never in metrics or Talk.

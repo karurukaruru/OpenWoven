@@ -26,6 +26,10 @@ milestone; the first tag/version `0.1.0` is planned.
   with explicit limits on feedback attribution and unvalidated long-term effects.
 - Stable scheduled-message ordering when creation/due timestamps tie, including
   Windows clock-resolution regressions; Full-only Android artifact distribution.
+- Model-written weekly summaries using the configured provider, bounded inputs,
+  persistent retry throttling and source revalidation before saving. Daily,
+  monthly and rolling structured records remain local; originals are retained.
+- Concise Chinese/English product introductions and packaged third-party notices.
 - Three Mermaid architecture diagrams with source maps; the architecture document
   and Android ProGuard configuration are required in the source-release inventory.
 

@@ -61,7 +61,7 @@ flowchart TB
     EV[("Evidence / 有来源的证据")]
     AGG["Deterministic aggregation / 纠正、到期、重放"]
     AUL[("Committed AUL + audit / 用户画像，不是角色设定")]
-    ARCH["Local rolling + calendar maintenance"]
+    ARCH["Rolling + calendar maintenance / configured LLM weekly summary"]
     SUM[("Day / week / month summaries + source links")]
     SEARCH["Lexical/date retrieval / 关键词与日期"]
     CONTEXT["Frozen AUL + policy + selected context / 本轮快照与预算"]
@@ -85,11 +85,15 @@ flowchart TB
     MODEL -->|persisted reply| RAW
 ```
 
+周摘要使用已配置 Provider 的独立总结接口，输入有预算限制，失败保留待处理状态。
+日/月/滚动归档仍在本地整理。网络请求不持有 SQLite 锁，写入前核对来源；详见
+[周摘要实现](src/adaptive_companion/weekly_summary.py) 与 [记忆设计](MEMORY_DESIGN.md)。
+
 - 每轮使用已提交的AUL快照和本轮Policy；异步学习可以与模型调用重叠，
   不改写已经组装的请求，新提交结果供之后的快照读取。不是训练模型权重。
 - 默认规则Observer不调用模型；语义Observer是显式配置的可选成本。
   明确反馈和已确认问卷建立证据，空白/未知答案不冒充事实；50题原文不逐轮发送。
-- 日、周、月从各自时间段的原话与证据本地提炼，**不是日摘要再次压成周、周再次压成月**。
+- 日/月从各自时段的原话与证据本地提炼；配置模型后周摘要由 LLM 总结有预算的原话与信号，**不是日摘要再次压成周、周再次压成月**。
   目录链接便于浏览，检索可直接命中旧原话。摘要保留来源、不删除原文，可失效重建。
 - 日/周/月只封存已结束且可整理的时段；滚动整理有批次上限。学习待处理时暂缓，
   失败来源保留并标记不完整。查询是词项/日期检索，不是向量语义召回。

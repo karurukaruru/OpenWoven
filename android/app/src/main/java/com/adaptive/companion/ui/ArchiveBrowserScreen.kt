@@ -96,6 +96,7 @@ fun ArchiveBrowserScreen(viewModel: CompanionViewModel, onBack: () -> Unit) {
                     Text(archive.periodLabel(), style = MaterialTheme.typography.titleLarge)
                     Text(tr("Original messages {0}", archive.optInt("message_count")) + " · " + archive.optString("kind").kindLabel())
                     val content = archive.optJSONObject("content")
+                    content?.optString("summary")?.takeIf { it.isNotBlank() }?.let { Text(it) }
                     if (content?.optBoolean("learning_incomplete") == true) Text(tr("部分消息未完成学习；下面仍可查看原话。"))
                     content?.optJSONArray("highlights")?.objects()?.forEach { Text(tr("Excerpt {0}", it.optString("text"))) }
                 }
@@ -131,6 +132,9 @@ fun ArchiveBrowserScreen(viewModel: CompanionViewModel, onBack: () -> Unit) {
                                 style = MaterialTheme.typography.titleMedium)
                             if (search.isNotBlank()) Text(row.optString("text")) else {
                                 Text(tr("Messages {0}", row.optInt("message_count")))
+                                row.optJSONObject("content")?.optString("summary")?.takeIf { it.isNotBlank() }?.let {
+                                    Text(it, maxLines = 4)
+                                }
                                 row.optJSONObject("content")?.optJSONArray("highlights")?.objects()?.take(3)?.forEach {
                                     Text(it.optString("text"), maxLines = 3)
                                 }

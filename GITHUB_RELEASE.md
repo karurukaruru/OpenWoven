@@ -5,8 +5,9 @@ MIT版权署名为 `karurukaruru`（2026）。以下为可复用操作步骤，�
 或公开完成证明；当前状态见GitHub实际仓库及本地审查记录。
 
 2026-10-02：仓库已公开，私下漏洞报告已启用；修复提交 `46f2d21` 的四组 Core CI
-与源码候选包检查均通过。没有创建 tagged GitHub Release，没有上传 APK。
-下方保留后续发版操作步骤，不要把“仓库公开”与“正式二进制发行”混为一谈。
+与源码候选包检查均通过。本次补齐 APK 第三方声明与模型周摘要，准备发布
+实验性下载包；最新附件以 [Releases](https://github.com/karurukaruru/OpenWoven/releases) 为准。
+下方保留发版操作步骤，不要把“仓库公开”与“正式二进制发行”混为一谈。
 
 建议首版：**OpenWoven — v0.1.0 Experimental**。
 先公开可复用 Core＋Android 参考客户端源码；APK 是可选附件，不是开源的前提。
@@ -22,9 +23,9 @@ MIT版权署名为 `karurukaruru`（2026）。以下为可复用操作步骤，�
 
 仓库简介建议：
 
-> An experimental Android chat app that learns how you like to talk — AUL, local calendar memory, short message bubbles and proactive check-ins.
+> An AI chat app that gets to know you over time.
 
-建议 Topics：`android`、`llm`、`personalization`、`long-term-memory`、`local-first`、`python`、`kotlin`、`aul`。
+建议 Topics：`android`、`llm`、`memory`、`chat`。
 首页展示无 Key 可复现的学习/遗忘闭环，不用未验证的真人感或节省率宣传。
 博客只提炼项目动机，不上传完整私人经历或把未经验证的效果当作广告。
 公开附件以 Full 为主；Locked 源码保留，不上传 Locked APK。
