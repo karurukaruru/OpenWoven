@@ -18,7 +18,7 @@ source release or enable unverified shrinking as a documentation change.
 
 Start with the zero-key demo in README.en.md. For core changes, add regression
 tests and run `python -m unittest discover -s tests -v`. For Android changes, run
-both flavor unit tests, lint, and debug assembly as described in README.md.
+unit tests, lint, and debug assembly as described in the Android section below.
 For retrieval changes, run `python examples/retrieval_benchmark.py` and compare
 SQL counts, source/deletion behavior and result order. Timings are informational;
 do not add hardware-specific latency gates.
@@ -41,9 +41,27 @@ files, API credentials, signing material, or unredacted provider error logs.
 The prepared Core-test workflow uses no model API calls and requires no API keys.
 It installs the distribution (not an editable link) and smoke-tests isolated imports.
 A separate manual Android workflow uses no provider or production signing secrets.
-It tests/lints both editions, but builds and uploads Full only; do not add Locked
-APKs to artifacts or Releases. Current hosted results are in
+It retains test reports and a Debug APK for review. Current hosted results are in
 [Actions](https://github.com/karurukaruru/OpenWoven/actions); local and hosted
 checks are different evidence.
 First installs/builds may download tools/dependencies. See RELEASE_CHECKLIST.md
 before treating this as a released package or APK.
+
+## Android
+
+Install Android SDK platform 36, Build Tools 36.0.0, JDK 17 and Python 3.13.
+The first build downloads dependencies. Configure the SDK in Android Studio or
+set `ANDROID_SDK_ROOT`; set `JAVA_HOME` to your JDK if needed.
+Chaquopy discovers Python 3.13 automatically. Override it with
+`COMPANION_BUILD_PYTHON` or `-PcompanionBuildPython=/absolute/path/to/python3.13`.
+
+From a source checkout, run:
+
+```sh
+cd android
+sh ./gradlew :app:testFullDebugUnitTest :app:lintFullDebug :app:assembleFullDebug
+```
+
+On Windows, use `./gradlew.bat` instead of `sh ./gradlew`.
+The APK is `android/app/build/outputs/apk/full/debug/app-full-debug.apk`.
+It is a Debug build; production signing is not configured.

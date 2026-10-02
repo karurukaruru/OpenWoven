@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "openwoven"
 version = "0.1.0"
-description = "OpenWoven: local-first, explainable preference learning and calendar memory"
+description = "OpenWoven: chat memory, communication preferences and proactive messages"
 readme = "README.en.md"
 requires-python = ">=3.11"
 dependencies = []

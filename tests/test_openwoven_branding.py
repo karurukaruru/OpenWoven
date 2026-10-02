@@ -60,6 +60,19 @@ class OpenWovenBrandingTests(unittest.TestCase):
         manifest = (ROOT / 'android/app/src/main/AndroidManifest.xml').read_text(encoding='utf-8')
         self.assertIn('@style/Theme.OpenWoven', manifest)
 
+    def test_readmes_keep_language_and_usage_links_without_edition_promotions(self):
+        for name, other in (('README.md', 'README.en.md'), ('README.en.md', 'README.md')):
+            with self.subTest(readme=name):
+                text = (ROOT / name).read_text(encoding='utf-8')
+                self.assertIn(f'({other})', text)
+                self.assertIn('(CONTRIBUTING.md#android)', text)
+                self.assertIn('(AUL_DESIGN.md)', text)
+                self.assertIn('python -m openwoven', text)
+                self.assertNotRegex(text, r'(?i)\blocked\b|local-first')
+        contributing = (ROOT / 'CONTRIBUTING.md').read_text(encoding='utf-8')
+        self.assertIn('## Android', contributing)
+        self.assertIn(':app:assembleFullDebug', contributing)
+
 
 if __name__ == '__main__':
     unittest.main()
