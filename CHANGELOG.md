@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.0 — 2026-10-03 (experimental)
+
+- Android role library: create, preview imports, export role-only ZIPs and switch characters while retaining separate chats and memory. Preserve the legacy database and image paths.
+- Shared bounded ZIP codec and basic V1/V2/V3 JSON/PNG card conversion. No imported scripts, prompt overrides, lorebooks, user profiles or credentials.
+- Keep imported character seeds separate from source-linked learned backstory, so deletion still removes facts derived from deleted chats.
+- Local Web client for Windows/macOS/Linux: shared Core, text chat, composer-aware waiting, paced bubbles, role packages, scheduling and memory inspection. Loopback-only with same-origin/session/CSRF checks; keys remain in memory.
+- Chinese/English introduction now briefly explains AUL and natural message pacing. Add role-package compatibility documentation.
+
 ## v0.1.0 — 2026-10-03 (experimental)
 
 Published as a [GitHub prerelease](https://github.com/karurukaruru/OpenWoven/releases/tag/v0.1.0),

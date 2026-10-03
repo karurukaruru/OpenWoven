@@ -2,13 +2,13 @@
 
 [中文入口](README.md) · [English entry](README.en.md) · [Memory details](MEMORY_DESIGN.md) · [Runtime details](RUNTIME_GUIDE.md)
 
-本文对应当前单用户原型，Python/Android基础版本0.1.0、SQLite schema v11。
+本文对应当前单用户原型，Python/Android基础版本0.2.0、SQLite schema v11。
 三张图描述已有组件的逻辑调用/数据关系，不表示所有操作同步完成，也不是效果验收。
 箭头表示调用或数据流；虚线表示配置、按需读取或可选路径，不代表新服务。
 
-The reusable Python Core runs locally; Android embeds it through Chaquopy.
+The reusable Python Core runs locally; Android embeds it through Chaquopy, and the local Web client uses a loopback-only Python HTTP server.
 These diagrams describe implemented boundaries, not model quality, exact delivery
-guarantees or a deployed cloud service. Each database represents one user.
+guarantees or a deployed cloud service. Each chat database represents one user/character pairing.
 
 ## 1. System overview / 系统总览
 
@@ -25,6 +25,8 @@ flowchart TB
     BRIDGE --> PRESENT
     PRESENT --> UI
     CLI["Python CLI / embedding application"]
+    WEB["Local Web UI + loopback HTTP server"]
+    LIBRARY["Private role library + portable role-only ZIP"]
     CORE["CompanionCore / dialogue, learning, memory, schedules"]
     STORE[("SQLite v11 / dialogue + derived state")]
     PROVIDER["Replaceable LLMProvider"]
@@ -32,6 +34,9 @@ flowchart TB
     REMOTE["Configured remote model / selected context + current images"]
     BRIDGE <--> CORE
     CLI --> CORE
+    WEB --> CORE
+    WEB <--> LIBRARY
+    BRIDGE <--> LIBRARY
     CORE <--> STORE
     CORE --> PROVIDER
     PROVIDER --> LOCAL
@@ -39,6 +44,8 @@ flowchart TB
 ```
 
 - Android依赖参考客户端，不是Core的使用前提；CLI或其他Python程序可直接嵌入Core。
+- Web 服务仅监听 `127.0.0.1`，校验 Host/Origin、会话与写请求令牌；Key 只在进程内存中。没有公网认证或跨设备同步。
+- 角色库保存基础设定与导入经历；聊天形成的角色事实仍保留消息来源。导出按需读取，不将有来源的事实转成无来源的种子。角色切换使用独立数据库；旧默认库保持原路径。
 - Android设置存于DataStore，API Key由Keystore加密保存；聊天SQLite本身未应用层加密。
   Core与设置/密钥不是同一个数据库。配置远程Provider后，选定上下文会出设备。
 - 图片由Android最小权限选图/重编码，仅当前轮通过视觉请求发送；不进入AUL或反复回传。

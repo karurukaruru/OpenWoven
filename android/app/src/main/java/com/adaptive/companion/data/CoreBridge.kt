@@ -33,12 +33,13 @@ class CoreBridge(private val context: Context) {
             .put("retry", settings.retryCount)
             .put("supports_vision", settings.modelSupportsVision)
         val config = JSONObject()
+            .put("role_library", File(context.filesDir, "roles").absolutePath)
             .put("persona", settings.persona.json(settings.language))
             .put("memory_utc_offset_minutes", TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60000)
             .put("memory_zone_name", TimeZone.getDefault().id)
             .put("provider", provider)
             .put("turn_idle_seconds", settings.turnIdleSeconds)
-            .put("attachment_root", File(context.filesDir, "chat_images").absolutePath)
+            .put("attachment_root", File(context.filesDir, roleImageDirectory(settings.persona)).absolutePath)
             .put("daily_reply_length", settings.dailyReplyLength.toDouble())
             .put("observer_enabled", settings.observerEnabled)
             .put("learning", JSONObject()
@@ -65,7 +66,7 @@ class CoreBridge(private val context: Context) {
                 .put("quiet_start_hour", settings.quietStart)
                 .put("quiet_end_hour", settings.quietEnd)
                 .put("importance_threshold", settings.proactiveThreshold.toDouble()))
-        val database = File(context.filesDir, "adaptive_companion.db").absolutePath
+        val database = File(context.filesDir, roleDatabaseName(settings.persona)).absolutePath
         module.callAttr("initialize", database, config.toString())
         globalInitialized = true
         latestComposerDraft?.let { module.callAttr("note_composer", it) }
@@ -101,6 +102,17 @@ class CoreBridge(private val context: Context) {
         pythonCall {
             parseMessages(module.callAttr("list_messages", conversationId, 300).toString())
         }
+
+    suspend fun roles(): JSONArray = pythonCall { JSONArray(module.callAttr("list_roles").toString()) }
+    suspend fun previewRole(bytes: ByteArray): JSONObject = pythonCall {
+        JSONObject(module.callAttr("preview_role", android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)).toString())
+    }
+    suspend fun addRole(preview: JSONObject): JSONObject = pythonCall {
+        JSONObject(module.callAttr("add_role", preview.toString()).toString())
+    }
+    suspend fun exportRole(id: String): ByteArray = pythonCall {
+        android.util.Base64.decode(module.callAttr("export_role", id).toString(), android.util.Base64.DEFAULT)
+    }
 
     suspend fun message(messageId: String): ChatMessage? = pythonCall {
         parseMessage(module.callAttr("get_message", messageId).toString())

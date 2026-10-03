@@ -23,13 +23,16 @@ class PackageSmokeTests(unittest.TestCase):
             archive.writestr(prefix + 'METADATA', f'Metadata-Version: 2.4\nName: {name}\nVersion: 0.1.0\nLicense-Expression: MIT\n' + metadata_extra)
             if not omit_license:
                 archive.writestr(prefix + 'licenses/LICENSE', 'MIT License\nCopyright (c) 2026 ' + holder)
-            for module in ('core', 'retrieval', 'android_bridge', 'onboarding', 'character_interview', 'character_book'):
+            for module in ('core', 'retrieval', 'android_bridge', 'onboarding', 'character_interview', 'character_book', 'role_package'):
                 if module == omit_module:
                     continue
                 archive.writestr('adaptive_companion/' + module + '.py', '# synthetic fixture\n')
-            for module in ('__init__', '__main__'):
+            for module in ('__init__', '__main__', 'web'):
                 if module != omit_module:
                     archive.writestr('openwoven/' + module + '.py', '# synthetic public fixture\n')
+            for asset in ('index.html', 'style.css', 'app.js'):
+                if asset != omit_module:
+                    archive.writestr('openwoven/static/' + asset, '# synthetic Web fixture\n')
             if extra:
                 archive.writestr(extra, 'synthetic, not user data')
 
@@ -68,6 +71,12 @@ class PackageSmokeTests(unittest.TestCase):
                 self.fixture(omit_module=module)
                 with self.assertRaisesRegex(ValueError, 'required public module missing: ' + module):
                     validate_wheel(self.wheel)
+
+    def test_missing_web_client_or_asset_is_rejected(self):
+        for name in ('web', 'app.js', 'style.css', 'index.html'):
+            self.fixture(omit_module=name)
+            with self.assertRaisesRegex(ValueError, 'required (public module|Web asset) missing'):
+                validate_wheel(self.wheel)
 
 
 if __name__ == '__main__':

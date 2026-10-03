@@ -19,6 +19,7 @@ release-dist/
 build/
 *.egg-info/
 .pytest_cache/
+.openwoven/
 
 android/.gradle/
 android/.kotlin/

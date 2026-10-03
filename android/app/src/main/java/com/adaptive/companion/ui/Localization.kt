@@ -11,6 +11,19 @@ object UiStrings {
     val languages = listOf("zh-CN", "zh-TW", "ja", "en-US")
     val labels = listOf("简体中文", "繁體中文", "日本語", "English (US)")
     val catalog: Map<String, List<String>> = mapOf(
+        "Role library" to listOf("角色管理", "角色管理", "キャラクター管理", "Role library"),
+        "Nickname" to listOf("昵称", "暱稱", "ニックネーム", "Nickname"),
+        "Import, export and switch characters" to listOf("导入、导出与切换角色", "匯入、匯出與切換角色", "キャラクターの読み込み・書き出し・切り替え", "Import, export and switch characters"),
+        "Role package privacy" to listOf("角色包只包含角色设定和经历，不含你的资料、聊天记录或 API Key。", "角色包只包含角色設定和經歷，不含你的資料、聊天記錄或 API Key。", "パッケージには設定と経歴だけが含まれ、ユーザー情報・会話・APIキーは含まれません。", "Packages contain only character settings and backstory, not your profile, chats or API key."),
+        "Inactive role scheduling is paused" to listOf("各角色的聊天、记忆独立保存。未选中的角色暂停发送；切换会停止旧角色未完成的回复。", "各角色的聊天、記憶獨立儲存。未選中的角色暫停傳送；切換會停止舊角色未完成的回覆。", "会話と記憶はキャラクター別です。非選択の送信は停止し、切り替え時に未完了の返信を取り消します。", "Chats and memory are separate per character. Inactive delivery pauses; switching cancels unfinished replies."),
+        "Import role" to listOf("导入角色", "匯入角色", "読み込み", "Import role"),
+        "Export role" to listOf("导出角色", "匯出角色", "書き出し", "Export role"),
+        "New role" to listOf("新建角色", "新增角色", "新規キャラクター", "New role"),
+        "Switch role" to listOf("切换角色", "切換角色", "切り替え", "Switch role"),
+        "Current role" to listOf("当前角色", "目前角色", "選択中", "Current role"),
+        "Role description" to listOf("角色设定", "角色設定", "キャラクター設定", "Role description"),
+        "Role package operation failed" to listOf("无法处理角色包，请检查文件格式、大小或目标文件权限。", "無法處理角色包，請檢查格式、大小或目標檔案權限。", "形式・サイズ・保存先の権限を確認してください。", "Cannot process the role package. Check its format, size or destination permissions."),
+        "Role card conversion warning" to listOf("外部角色卡只转换基础设定，文本可能截短；开场白、知识库、额外提示词和脚本不导入。", "外部角色卡只轉換基礎設定，文字可能截短；開場白、知識庫、額外提示詞和腳本不匯入。", "基本設定のみ変換し、長文は短縮する場合があります。挨拶・ロア・追加プロンプト・スクリプトは読み込みません。", "External cards convert basic settings only; long text may be shortened. Greetings, lorebooks, extra prompts and scripts are not imported."),
         "OpenWoven" to listOf("OpenWoven", "OpenWoven", "OpenWoven", "OpenWoven"),
         "Add image" to listOf("＋图片", "＋圖片", "＋画像", "+ Image"),
         "At most four images per turn" to listOf("一轮最多4张图片，请等上一轮回复后再发，或删除待回复图片", "一輪最多4張圖片，請等上一輪回覆後再傳，或刪除待回覆圖片", "1ターンは画像4枚までです。返信を待つか、保留中の画像を削除してください", "At most 4 images per turn. Wait for the reply or delete a pending image"),

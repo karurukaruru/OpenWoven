@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CancellationException
 import org.json.JSONObject
 
-enum class Screen { CHAT, SETTINGS, ABOUT, PROVIDER, AUL, MEMORY, ARCHIVES, SCHEDULER, ADVANCED, PERSONA, SCHEDULE_MESSAGES }
+enum class Screen { CHAT, SETTINGS, ABOUT, PROVIDER, AUL, MEMORY, ARCHIVES, SCHEDULER, ADVANCED, PERSONA, SCHEDULE_MESSAGES, CHARACTERS }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +52,6 @@ fun SettingsScreen(
     onConversation: (Int, String, Float) -> Unit,
 ) {
     var confirmClear by remember { mutableStateOf(false) }
-    var explainGoogle by remember { mutableStateOf(false) }
     var confirmResident by remember { mutableStateOf(false) }
     var seconds by remember(settings.turnIdleSeconds) { mutableIntStateOf(settings.turnIdleSeconds) }
     var zone by remember(settings.timeZone) { mutableStateOf(settings.timeZone) }
@@ -68,6 +67,7 @@ fun SettingsScreen(
             SettingRow("Companion role", if (settings.persona.generationMethod == "pending") tr("Character awaiting model")
                 else settings.persona.name.ifBlank { tr("Companion") }) { onNavigate(Screen.PERSONA) }
             Text(tr("Role transparency"), Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.bodySmall)
+            SettingRow("Role library", "Import, export and switch characters") { onNavigate(Screen.CHARACTERS) }
             Section("Conversation")
             Column(Modifier.padding(horizontal = 18.dp)) {
                 Text(tr("Turn wait seconds", seconds))
@@ -111,7 +111,6 @@ fun SettingsScreen(
                 if (it) confirmResident = true else onBackgroundMode(BackgroundPolicy.SYSTEM)
             }
             Text(tr("关闭后使用系统省电调度，可能延后。常驻会显示持续通知、额外耗电，仍可能被系统停止；重开应用会按选择恢复。"), Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.bodySmall)
-            SettingRow("Google 推送（FCM）", "尚未接入：需要 Firebase 项目和可信服务端，不会自动检测Google服务") { explainGoogle = true }
             if (advancedVisible) {
                 Section(if (BuildConfig.IS_FULL) "Developer" else "Administrator")
                 SettingRow("Provider and models", settings.dialogueModel) { onNavigate(Screen.PROVIDER) }
@@ -131,11 +130,6 @@ fun SettingsScreen(
         text = { Text(tr("应用会显示常驻通知并等待已保存的回复／关心待办。不是防杀保活，也不保证准点。你可以在设置或常驻通知里随时停止。")) },
         confirmButton = { TextButton(onClick = { confirmResident = false; onBackgroundMode(BackgroundPolicy.RESIDENT) }) { Text(tr("启用")) } },
         dismissButton = { TextButton(onClick = { confirmResident = false }) { Text(tr("取消")) } },
-    )
-    if (explainGoogle) AlertDialog(
-        onDismissRequest = { explainGoogle = false }, title = { Text(tr("为什么还没有 Google 推送？")) },
-        text = { Text(tr("FCM只负责将服务端消息送到手机。记忆、计时和AI回复还需要在线服务端，并处理设备令牌、认证和数据同步。目前是本地运行版本，没有这些服务，所以先提供省电调度和常驻两种模式。")) },
-        confirmButton = { TextButton(onClick = { explainGoogle = false }) { Text(tr("明白")) } },
     )
     if (confirmClear) AlertDialog(
         onDismissRequest = { confirmClear = false },

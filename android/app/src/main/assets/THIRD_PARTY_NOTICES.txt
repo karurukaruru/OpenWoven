@@ -1,4 +1,4 @@
-OpenWoven 0.1.0 — third-party notices
+OpenWoven 0.2.0 — third-party notices
 
 Project source: MIT, Copyright (c) 2026 karurukaruru. Dependencies retain their own licenses.
 Runtime inventory: fullDebugRuntimeClasspath. Test-only and host build tools are excluded.

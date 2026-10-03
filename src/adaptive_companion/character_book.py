@@ -123,12 +123,26 @@ class CharacterBook:
         self.character_id = str(explicit)[:80] if explicit else hashlib.sha256(
             json.dumps(foundation, ensure_ascii=False).encode()).hexdigest()[:32]
         self.name = persona.get('name', '')
+        with self.store.connection() as conn:
+            conn.execute('CREATE TABLE IF NOT EXISTS imported_character_facts '
+                         '(character_id TEXT,path TEXT,value TEXT,PRIMARY KEY(character_id,path))')
+            conn.commit()
+
+    def seed(self, facts: list[dict]) -> None:
+        from .role_package import clean_facts
+        facts = clean_facts(facts)
+        with self.store.connection() as conn:
+            self.validate(conn, self.character_id, facts)
+            conn.executemany('INSERT OR IGNORE INTO imported_character_facts VALUES(?,?,?)',
+                             [(self.character_id, x['path'], x['value']) for x in facts])
+            conn.commit()
 
     def entries(self) -> list[dict]:
         with self.store.connection() as conn:
             return [dict(row) for row in conn.execute(
-                'SELECT path,value FROM character_facts WHERE character_id=? ORDER BY path LIMIT ?',
-                (self.character_id, MAX_FACTS)).fetchall()]
+                'SELECT path,value FROM character_facts WHERE character_id=? UNION '
+                'SELECT path,value FROM imported_character_facts WHERE character_id=? ORDER BY path LIMIT ?',
+                (self.character_id, self.character_id, MAX_FACTS)).fetchall()]
 
     def tree(self) -> dict:
         result = {}
@@ -181,7 +195,9 @@ class CharacterBook:
 
     @staticmethod
     def validate(conn, character_id: str, facts: list[dict]) -> None:
-        rows = conn.execute('SELECT path,value FROM character_facts WHERE character_id=?', (character_id,)).fetchall()
+        rows = conn.execute('SELECT path,value FROM character_facts WHERE character_id=? UNION '
+                            'SELECT path,value FROM imported_character_facts WHERE character_id=?',
+                            (character_id, character_id)).fetchall()
         existing = {row['path']: row['value'] for row in rows}
         for item in facts:
             old = existing.get(item['path'])

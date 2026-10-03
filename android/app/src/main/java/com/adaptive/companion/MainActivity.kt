@@ -214,6 +214,7 @@ private fun CompanionApp(viewModel: CompanionViewModel, state: CompanionUiState,
         Screen.AUL -> AulInspectorScreen(viewModel) { screen = Screen.SETTINGS }
         Screen.MEMORY -> DebugMemoryScreen(viewModel) { screen = Screen.SETTINGS }
         Screen.ARCHIVES -> ArchiveBrowserScreen(viewModel) { screen = Screen.SETTINGS }
+        Screen.CHARACTERS -> RoleLibraryScreen(viewModel, state) { screen = Screen.SETTINGS }
         Screen.SCHEDULER -> SchedulerDebugScreen(viewModel) { screen = Screen.SETTINGS }
         Screen.SCHEDULE_MESSAGES -> ScheduledMessagesScreen(viewModel, state) { screen = Screen.SETTINGS }
         Screen.ADVANCED -> AdvancedSettingsScreen(

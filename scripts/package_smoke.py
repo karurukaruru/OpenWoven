@@ -36,13 +36,16 @@ def validate_wheel(wheel: Path, for_publication=False):
             root = name.split('/', 1)[0]
             if root not in {'adaptive_companion', 'openwoven'} and not root.endswith('.dist-info'):
                 raise ValueError('unexpected payload outside the Core package: ' + name)
-        for required in ('core', 'retrieval', 'android_bridge', 'onboarding', 'character_interview', 'character_book'):
+        for required in ('core', 'retrieval', 'android_bridge', 'onboarding', 'character_interview', 'character_book', 'role_package'):
             if f'adaptive_companion/{required}.py' not in names:
                 raise ValueError('required module missing: ' + required)
 
-        for required in ('__init__', '__main__'):
+        for required in ('__init__', '__main__', 'web'):
             if f'openwoven/{required}.py' not in names:
                 raise ValueError('required public module missing: ' + required)
+        for required in ('index.html', 'style.css', 'app.js'):
+            if f'openwoven/static/{required}' not in names:
+                raise ValueError('required Web asset missing: ' + required)
 
 
 def main():
@@ -69,6 +72,8 @@ def main():
         subprocess.run([str(python), '-I', '-X', 'utf8', '-m', 'openwoven', '--db', ':memory:', 'demo'],
                        cwd=root, check=True)
         subprocess.run([str(python), '-I', '-X', 'utf8', '-m', 'adaptive_companion', '--help'],
+                       cwd=root, check=True)
+        subprocess.run([str(python), '-I', '-X', 'utf8', '-m', 'openwoven.web', '--help'],
                        cwd=root, check=True)
         subprocess.run([str(python), '-I', '-c',
                         'from openwoven import CompanionCore; from adaptive_companion import CompanionCore as Legacy; assert CompanionCore is Legacy'],

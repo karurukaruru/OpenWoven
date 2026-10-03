@@ -14,6 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
+import tomllib
 
 
 LICENSES = {
@@ -44,7 +45,8 @@ def generate(root, cache, proxy):
     coordinates = sorted({line.removeprefix('RUNTIME ').strip() for line in result.stdout.splitlines() if line.startswith('RUNTIME ')})
     if len(coordinates) < 20:
         raise ValueError('incomplete runtime inventory')
-    sections = ['OpenWoven 0.1.0 — third-party notices\n\n'
+    version = tomllib.loads((Path(__file__).resolve().parents[1] / 'pyproject.toml').read_text(encoding='utf-8'))['project']['version']
+    sections = [f'OpenWoven {version} — third-party notices\n\n'
         'Project source: MIT, Copyright (c) 2026 karurukaruru. Dependencies retain their own licenses.\n'
         'Runtime inventory: fullDebugRuntimeClasspath. Test-only and host build tools are excluded.\n'
         'Python is the Chaquopy 3.13.9-0 Android distribution; this app makes no additional CPython changes.\n'

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "openwoven"
-version = "0.1.0"
+version = "0.2.0"
 description = "OpenWoven: chat memory, communication preferences and proactive messages"
 readme = "README.en.md"
 requires-python = ">=3.11"
@@ -30,3 +30,6 @@ package-dir = {"" = "src"}
 where = ["src"]
 include = ["openwoven*", "adaptive_companion*"]
 namespaces = false
+
+[tool.setuptools.package-data]
+openwoven = ["static/*.html", "static/*.css", "static/*.js"]

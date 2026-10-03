@@ -377,6 +377,36 @@ class CompanionViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun closeInterview() { _state.value = _state.value.copy(onboardingVisible = false) }
 
+    fun switchRole(item: JSONObject, onSaved: () -> Unit = {}) {
+        mutateHistory {
+            val previous = settingsStore.snapshot()
+            val oldWork = bridge.scheduled("pending")
+            bridge.roles() // Preserve the old role's latest canon before switching.
+            oldWork.forEach { WorkScheduler.cancel(context, it.id) }
+            oldWork.filter { it.topic.startsWith("reply:") }.forEach { bridge.cancelScheduled(it.id) }
+            removeImage()
+            composerChanged(false)
+            val role = PersonaSettings.parse(item.getJSONObject("role").toString()).copy(characterId = item.getString("id"))
+            try {
+                bridge.initialize(previous.copy(persona = role, personaConfigured = true), secrets.readApiKey())
+                val status = bridge.skipOnboarding()
+                val history = bridge.messages()
+                settingsStore.savePersona(role)
+                _state.value = _state.value.copy(settings = previous.copy(persona = role, personaConfigured = true),
+                    messages = history, draftText = "", onboarding = status,
+                    onboardingVisible = false, error = null)
+            } catch (error: Exception) {
+                bridge.initialize(previous, secrets.readApiKey())
+                bridge.scheduled("pending").forEach { WorkScheduler.schedule(context, it, _state.value.modelConfigured) }
+                throw error
+            }
+            // Once settings commit, OS failures must not revert only the backend.
+            com.adaptive.companion.notifications.NotificationHelper.clearMessages(context)
+            bridge.scheduled("pending").forEach { WorkScheduler.schedule(context, it, _state.value.modelConfigured) }
+            onSaved()
+        }
+    }
+
     fun retryInitialization() { viewModelScope.launch { initialize() } }
 
     fun feedback(kind: String) {
@@ -492,7 +522,7 @@ class CompanionViewModel(application: Application) : AndroidViewModel(applicatio
                 val selected = selectedProposal?.optJSONObject("persona")?.let { PersonaSettings.parse(it.toString()) }
                 // A confirmed model draft may change character text, never the
                 // interview/user data or learned preference baseline.
-                val persona = confirmGeneratedCharacter(foundation, selected, name)
+                val persona = confirmGeneratedCharacter(foundation, selected, name).copy(characterId = previous.persona.characterId)
                 val status = bridge.submitOnboarding(answers, true)
                 if (selected?.generationMethod == "model" && selectedProposal.has("distillation_basis")) {
                     bridge.applyInterviewDistillation(selectedProposal.toString())

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import base64
 import threading
 import urllib.request
 from dataclasses import asdict
@@ -23,6 +24,10 @@ from .turns import composer_gate
 _lock = threading.RLock()
 _core: CompanionCore | None = None
 _clock: str = ''
+_roles = None
+_role_id = 'legacy'
+_role_config: dict = {}
+_database_path = ''
 
 
 def note_composer(has_draft: bool, conversation_id: str = 'default') -> None:
@@ -38,7 +43,7 @@ def set_clock(local_iso: str, zone: str) -> None:
 
 
 def initialize(database_path: str, config_json: str = "{}") -> str:
-    global _core
+    global _core, _roles, _role_id, _role_config, _database_path
     config = json.loads(config_json or "{}")
     if not isinstance(config, dict) or any(not isinstance(config.get(key, {}), dict)
                                           for key in ('provider', 'delivery', 'proactive', 'learning')):
@@ -46,6 +51,7 @@ def initialize(database_path: str, config_json: str = "{}") -> str:
     with _lock:
         previous, _core = _core, None
         if previous is not None:
+            previous.learning.wait(raise_errors=False)
             previous.close()
         provider_config = config.get("provider", {})
         api_key = provider_config.get("api_key", "")
@@ -119,7 +125,52 @@ def initialize(database_path: str, config_json: str = "{}") -> str:
             supports_vision=bool(provider_config.get('supports_vision', False)),
         )
         _core.context_builder.clock = lambda: _clock
+        if config.get('role_library'):
+            from .role_package import RoleLibrary
+            _roles = RoleLibrary(config['role_library'])
+            _role_id = RoleLibrary.valid_id(persona_config.get('character_id') or 'legacy')
+            seeds = _roles.read(_role_id)['facts'] if _roles.path(_role_id).exists() else []
+            _core.character_book.seed(seeds)
+            _role_config = persona_config
+            _database_path = database_path
+            _roles.save(_role_id, persona_config, seeds, _core.character_book.character_id)
+        else:
+            _roles = None
         return _json({"ready": True, "database": database_path})
+
+
+def list_roles() -> str:
+    with _lock:
+        if _roles is None:
+            raise ValueError('Role library is not initialized')
+        item = _roles.read(_role_id)
+        _roles.save(_role_id, _role_config, item['facts'], _require_core().character_book.character_id)
+        return _json(_roles.list())
+
+
+def preview_role(encoded: str) -> str:
+    from .role_package import import_package, MAX_INPUT
+    if len(encoded) > (MAX_INPUT * 4 // 3 + 8):
+        raise ValueError('Role file too large')
+    return _json(import_package(base64.b64decode(encoded, validate=True)))
+
+
+def add_role(preview_json: str) -> str:
+    with _lock:
+        if _roles is None:
+            raise ValueError('Role library is not initialized')
+        return _json(_roles.add(json.loads(preview_json)))
+
+
+def export_role(role_id: str) -> str:
+    from pathlib import Path
+    from .role_package import export_package, stored_role_facts
+    with _lock:
+        list_roles()
+        item = _roles.read(role_id)
+        facts = _require_core().character_book.entries() if role_id == _role_id else stored_role_facts(
+            _roles, role_id, Path(_database_path).parent)
+        return base64.b64encode(export_package(item['role'], facts)).decode('ascii')
 
 
 def send_message(text: str, conversation_id: str = "default", message_id: str = '') -> str:

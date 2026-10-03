@@ -12,6 +12,7 @@ data class PersonaSettings(
     val interview: Map<String, String> = emptyMap(),
     val blueprintVersion: Int = 1,
     val generationMethod: String = "",
+    val characterId: String = "",
 ) {
     fun sanitized() = copy(
         preset = preset.takeIf { it in PRESETS } ?: "companion",
@@ -21,12 +22,13 @@ data class PersonaSettings(
         interview = interview.filterKeys { it in INTERVIEW_IDS }.mapValues { it.value.trim().take(300) },
         blueprintVersion = if (blueprintVersion == 2) 2 else 1,
         generationMethod = generationMethod.takeIf { it in listOf("", "pending", "model") } ?: "",
+        characterId = characterId.takeIf { it.matches(Regex("legacy|[0-9a-f]{32}")) } ?: "",
     )
     fun json(language: String): JSONObject = sanitized().let { p -> JSONObject()
         .put("preset", p.preset).put("name", p.name).put("description", p.description)
         .put("boundaries", p.boundaries).put("choices", JSONObject(p.choices)).put("language", language)
         .put("interview", JSONObject(p.interview)).put("blueprint_version", p.blueprintVersion)
-        .put("generation_method", p.generationMethod) }
+        .put("generation_method", p.generationMethod).put("character_id", p.characterId) }
     companion object {
         val PRESETS = listOf("companion", "listener", "playful", "coach", "custom")
         val INTERVIEW_IDS = ((21..30) + (36..50)).map { "q" + it.toString().padStart(2, '0') }.toSet()
@@ -43,12 +45,22 @@ data class PersonaSettings(
                 root.optString("description"), root.optString("boundaries"),
                 choices.keys().asSequence().associateWith { choices.optString(it) },
                 interview.keys().asSequence().associateWith { interview.optString(it) },
-                root.optInt("blueprint_version", 1), root.optString("generation_method")).sanitized()
+                root.optInt("blueprint_version", 1), root.optString("generation_method"), root.optString("character_id")).sanitized()
         }.getOrDefault(PersonaSettings())
     }
 }
 
 /** Pending describes model generation, not whether an explicit nickname exists. */
+fun roleDatabaseName(persona: PersonaSettings): String {
+    val id = persona.sanitized().characterId
+    return if (id.isBlank() || id == "legacy") "adaptive_companion.db" else "role_$id.db"
+}
+
+fun roleImageDirectory(persona: PersonaSettings): String {
+    val id = persona.sanitized().characterId
+    return if (id.isBlank() || id == "legacy") "chat_images" else "role_images/$id"
+}
+
 fun editableCharacterName(persona: PersonaSettings, configured: Boolean): String =
     if (!configured || (persona.generationMethod == "pending" &&
         persona.name in setOf("聊天伙伴", "聊天夥伴", "話し相手", "Companion"))) "" else persona.name
