@@ -10,7 +10,7 @@ An Android app is available, using your own model API.
 
 ## Quick start
 
-1. Download the APK from [Releases](https://github.com/karurukaruru/OpenWoven/releases) and install it on Android 8.0 or newer.
+1. [Download the APK](https://github.com/karurukaruru/OpenWoven/releases/download/v0.1.0/OpenWoven-0.1.0-debug.apk) and install it on Android 8.0 or newer.
 2. Enter your endpoint, API key and model name in Settings.
 3. Complete the initial questions to set up user information and a chat character. You can also ask the model to suggest a character and nickname, then review them before use.
 4. Enable proactive messages and allow notifications if desired.

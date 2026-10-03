@@ -66,6 +66,7 @@ class OpenWovenBrandingTests(unittest.TestCase):
                 text = (ROOT / name).read_text(encoding='utf-8')
                 self.assertIn(f'({other})', text)
                 self.assertIn('(CONTRIBUTING.md#android)', text)
+                self.assertIn('releases/download/v0.1.0/OpenWoven-0.1.0-debug.apk', text)
                 self.assertNotIn('AUL', text)
                 self.assertNotRegex(text, r'(?i)mainland|hong kong|中国大陆|香港')
                 self.assertIn('python -m openwoven', text)

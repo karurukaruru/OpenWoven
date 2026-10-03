@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased — planned v0.1.0 (experimental)
+## v0.1.0 — 2026-10-03 (experimental)
 
-No tagged GitHub Release has been published. Repository visibility is a separate
-milestone; the first tag/version `0.1.0` is planned.
+Published as a [GitHub prerelease](https://github.com/karurukaruru/OpenWoven/releases/tag/v0.1.0),
+with an Android Debug APK, SHA256 checksums and third-party notices.
+The APK was built from `e0533af0660111c1b060b351b2e5ba14778d3378`.
 
 - Rename the app, docs, distribution and CLI to OpenWoven; retain legacy Python
   entry points and Android identifiers for installation/data compatibility.

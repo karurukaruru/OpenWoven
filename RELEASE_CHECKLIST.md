@@ -9,6 +9,8 @@
 
 按步骤操作见 [GitHub发布指南](GITHUB_RELEASE.md)，首版文案见
 [发布说明草稿](RELEASE_NOTES.md)，版本记录见 [CHANGELOG](CHANGELOG.md)。
+2026-10-03 已公开 [v0.1.0 实验版 APK](https://github.com/karurukaruru/OpenWoven/releases/tag/v0.1.0)，
+附校验值与第三方声明；以下未完成的正式版验收仍然保留。
 本地 `scripts/release_preflight.py` 可生成待上传源码清单及所选附件的SHA-256；
 不读取数据库/凭据，不修改Git，不上传。它不是完整秘密或历史扫描。
 
@@ -82,13 +84,13 @@
   对 R8/缩减与 Chaquopy 验证兼容，不直接开启未经检查的混淆。
 - [ ] 明确 ABI。现有 ARM64＋x86_64 通用 Debug 包兼顾手机/模拟器，也增加包体；
   正式分发再评估按 ABI 构建/AAB，不删除必需的 Python 运行库硬缩包。
-- [ ] APK 附版本、构建条件、SHA-256、已知限制、来源链接与第三方声明。
+- [x] APK 附版本、构建条件、SHA-256、已知限制、来源链接与第三方声明。
   手动 workflow 的短期 artifact 不是正式 Release；不同机器 Debug 签名可能
   无法互相覆盖安装。卸载会丢本地历史，当前无加密导出。
 - [ ] 核对实际打包的许可证/版权声明：Chaquopy/Python 标准库、AndroidX、
   Kotlin/coroutines 与传递依赖。项目的 MIT 不替代这些声明。
   [Chaquopy 官方说明](https://chaquo.com/chaquopy/license/)其12.0.1之后为开源版本，
-  无需旧商业授权 Key，但 APK 再分发声明清单仍未完成。
+  无需旧商业授权 Key。本次已纳入第三方声明资产并附在 Release；后续版本仍需按实际依赖复查。
 - [ ] 说明公开管理员密码仅为便利锁；数据库未加密、自动备份关闭、
   远程服务商可接收上下文。不以 Locked 版冒充安全隔离。
 - [ ] 如计划 Google Play，再审查前台 `specialUse`、权限与商店政策；

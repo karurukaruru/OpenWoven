@@ -5,8 +5,12 @@ MIT版权署名为 `karurukaruru`（2026）。以下为可复用操作步骤，�
 或公开完成证明；当前状态见GitHub实际仓库及本地审查记录。
 
 2026-10-02：仓库已公开，私下漏洞报告已启用；修复提交 `46f2d21` 的四组 Core CI
-与源码候选包检查均通过。本次补齐 APK 第三方声明与模型周摘要，准备发布
-实验性下载包；最新附件以 [Releases](https://github.com/karurukaruru/OpenWoven/releases) 为准。
+与源码候选包检查均通过。2026-10-03 已发布
+[v0.1.0 实验版](https://github.com/karurukaruru/OpenWoven/releases/tag/v0.1.0)，
+包含 APK、SHA256 校验值与第三方声明，来源提交为 `e0533af`。
+同提交 [四组 Core CI](https://github.com/karurukaruru/OpenWoven/actions/runs/37021532441)
+与 [源码候选检查](https://github.com/karurukaruru/OpenWoven/actions/runs/37021697020) 通过；
+Android 单测、Lint 与构建在本地完成，不声称托管 Android 或真机验收。
 下方保留发版操作步骤，不要把“仓库公开”与“正式二进制发行”混为一谈。
 
 建议首版：**OpenWoven — v0.1.0 Experimental**。

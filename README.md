@@ -10,7 +10,7 @@ OpenWoven 通过持续对话和反馈记录你的喜好、交流习惯与相关�
 
 ## 快速开始
 
-1. 从 [Releases](https://github.com/karurukaruru/OpenWoven/releases) 下载 APK，安装到 Android 8.0 或更新版本。
+1. [下载 APK](https://github.com/karurukaruru/OpenWoven/releases/download/v0.1.0/OpenWoven-0.1.0-debug.apk)，安装到 Android 8.0 或更新版本。
 2. 在设置中填写接口地址、API Key 和模型名称。
 3. 完成初始问题，设置用户资料与聊天角色；也可以让模型生成角色设定和昵称，确认后使用。
 4. 如需主动消息，开启相关设置并允许通知权限。
