@@ -1,61 +1,61 @@
 # OpenWoven
 
-一个会逐渐了解你的 AI 聊天软件。
+An AI chat app that gets to know you over time.
 
-[English](README.en.md)
+[简体中文](README.zh-CN.md)
 
-OpenWoven 通过持续对话和反馈记录你的喜好、交流习惯与相关经历，并将这些信息用于后续回复。你可以设定聊天角色，应用会保留角色资料与对话记忆，让交流保持连贯。
+OpenWoven records preferences, communication habits and relevant experiences through ongoing conversations and feedback, then uses that information to guide future replies. You can configure a chat character; character details and conversation memory help maintain continuity.
 
-目前提供 Android 应用和本地 Web 客户端，使用你自行配置的模型 API。
+Android and local Web clients are available, using your own model API.
 
-## 快速开始
+## Quick start
 
-1. [下载 APK](https://github.com/karurukaruru/OpenWoven/releases/download/v0.2.0/OpenWoven-0.2.0-debug.apk)，安装到 Android 8.0 或更新版本。
-2. 在设置中填写接口地址、API Key 和模型名称。
-3. 完成初始问题，设置用户资料与聊天角色；也可以让模型生成角色设定和昵称，确认后使用。
-4. 如需主动消息，开启相关设置并允许通知权限。
+1. [Download the APK](https://github.com/karurukaruru/OpenWoven/releases/download/v0.2.0/OpenWoven-0.2.0-debug.apk) and install it on Android 8.0 or newer.
+2. Enter your endpoint, API key and model name in Settings.
+3. Complete the initial questions to set up user information and a chat character. You can also ask the model to suggest a character and nickname, then review them before use.
+4. Enable proactive messages and allow notifications if desired.
 
-初始设置包含十道基础问题，完整版五十道题可随后补充。问卷只用于建立起点，并非心理测评；后续可以通过聊天、反馈或设置调整。
+Setup starts with ten questions; the full fifty-question interview can be completed later. It establishes a starting point, not a psychological assessment. Conversation, feedback and settings can refine it over time.
 
-API 调用可能产生费用，相关对话内容会发送给你选择的服务商。也可按 [构建说明](CONTRIBUTING.md#android) 从源码构建应用。
+API calls may incur charges, and relevant conversation context is sent to your chosen provider. You can also [build the app from source](CONTRIBUTING.md#android).
 
-## 主要功能
+## Features
 
-- AUL（AI User Learning）：从 ASM（[Agent Software Map](https://github.com/karurukaruru/agent-software-map)）的思路迭代而来的用户学习系统。问卷建立初始用户资料与角色设定；聊天和反馈提供新的线索，系统再更新偏好，用于之后的回复。它是一套记忆与交流策略，不是训练模型，也不会仅凭一次反应就把用户定义死。
-- 角色管理：创建、切换角色，分别保留聊天和记忆。角色设定与经历可导出为 ZIP，再导入另一端；不包含用户画像、聊天记录或 API Key。也可转换常见角色卡 JSON／PNG 的基础设定，导入前预览；不保证所有应用格式完整兼容。
-- 对话记忆：按日、周、自然月归档。配置模型后，已结束的每周由 LLM 生成摘要；日与月归档保留结构化要点和原话来源。周摘要失败时保留原始记录，稍后重试。日期和关键词检索只将相关内容加入上下文，不用发送全部历史。
-- 消息节奏：连续发送的消息会合并理解，停止输入后默认等待二十秒，可调整为十到六十秒。日常回复以独立的短消息分条发送，通常间隔一到两秒。回复长短可设置，代码和长文不强行拆分。只观察本应用输入框，不读取其他应用的键盘。
-- 主动消息：结合近期话题安排主动开场，也可预约原文或模型生成的消息。主动开场限制为一到三条短消息，避免一次发出长篇回复。频率、间隔、免打扰时间与开场白延迟可设置。Android 通过后台服务与系统任务发送通知；省电与后台限制可能影响送达时间。
-- 图片与设置：将模型标记为支持看图后，可选择图片发送。当前不支持角色发送或生成图片。界面支持简体中文、繁体中文、日语与英语，可切换模型并调整回复与学习参数。
+- AUL (AI User Learning): a user-learning system adapted from the idea behind ASM ([Agent Software Map](https://github.com/karurukaruru/agent-software-map)). Initial questions establish user information and a character; conversation and feedback provide evidence to refine preferences for later replies. This is memory and conversation guidance, not model training or a fixed personality assessment.
+- Character management: create and switch characters with separate conversations and memory. Export character settings and backstory as a ZIP for use in either client, without user profiles, chats or API keys. Common JSON/PNG character cards can be converted to basic settings with a preview; complete compatibility with every application's format is not guaranteed.
+- Conversation memory: records are archived by day, week and calendar month. With a model configured, completed weeks receive LLM-written summaries; daily and monthly archives retain structured highlights and source links. Failed weekly requests leave original messages intact for later retries. Date and keyword retrieval adds relevant context without sending the entire history.
+- Message pacing: consecutive user messages are treated as one turn. The default wait after input stops is twenty seconds, adjustable from ten to sixty seconds. Everyday replies arrive as separate short messages, usually one or two seconds apart. Length is adjustable; code and requested long documents are not forcibly split. Only the app's own composer is observed, not keyboards in other apps.
+- Proactive messages: the app schedules openings based on recent topics, or sends exact text or model-generated messages at a chosen time. Openings are limited to one to three short messages rather than unsolicited essays. Frequency, spacing, quiet hours and greeting delays are configurable. Android background services and system work handle notifications; battery management may affect delivery time.
+- Images and settings: mark a model as vision-capable to select and send images. Character image replies and image generation are not currently supported. The interface supports Simplified Chinese, Traditional Chinese, Japanese and English. Models, reply preferences and learning parameters can be adjusted in Settings.
 
-## 本地 Web 客户端
+## Local Web client
 
-Windows、macOS、Linux 均可使用 Python 3.11+ 运行：
+Use Python 3.11+ on Windows, macOS or Linux. Download the source, open a terminal in the project directory, then run:
 
 ```sh
 python -m pip install -e .
 python -m openwoven.web
 ```
 
-在浏览器打开 `http://127.0.0.1:8765`，到设置填写模型接口。支持文字聊天、输入等待、分条回复、角色包与预约消息，使用同一 Core；当前不提供图片输入和系统通知。API Key 只保留在服务进程内存，重启后需重新填写。预约发送需要保持这个进程运行。
+Open `http://127.0.0.1:8765` and configure your model endpoint in Settings. Text chat, input-aware waiting, paced bubbles, role packages and scheduled messages use the same Core. Image input and OS notifications are not available in this Web version. The API key stays in server memory and must be entered again after restart. Keep the process running for scheduled delivery.
 
-这是本机客户端，不是公网服务器；两端可交换角色包，但聊天和用户资料不会自动同步。兼容范围见 [角色包说明](ROLE_PACKAGES.md)。
+This is a local client, not a public server. Role packages can be exchanged, but chats and user information are not automatically synchronized. See [Role packages](ROLE_PACKAGES.md) for compatibility details.
 
-## 实现与开发
+## Implementation and development
 
-用户偏好、角色资料和对话记录分别保存。每轮结合相关记忆生成回复，之后保存对话与反馈，更新后续交流所需的信息；不修改模型权重。
+User preferences, character details and conversation records are stored separately. Each turn uses relevant memory to guide a reply, then saves conversation and feedback to refine later interactions. Model weights are not modified.
 
-详见 [记忆设计](MEMORY_DESIGN.md)、[架构](ARCHITECTURE.md) 和 [贡献指南](CONTRIBUTING.md)。
+See [Memory design](MEMORY_DESIGN.md), [Architecture](ARCHITECTURE.md) and [Contributing](CONTRIBUTING.md).
 
-不配置 API 也可运行核心演示（Python 3.11+）：
+To run the core demo without an API key, use Python 3.11+:
 
 ```sh
 python -m pip install -e .
 python -m openwoven --db ":memory:" demo
 ```
 
-演示使用本地示例回复，不调用真实模型。
+The demo uses local sample replies and does not call a real model.
 
-项目仍处于实验阶段，长期记忆效果与实际设备上的后台行为尚待验证。问题与建议可提交 Issue，请勿附带 API Key 或私人聊天记录。
+This is an experimental project. Long-term memory quality and background behavior on physical devices still need validation. Issues and suggestions are welcome; please omit API keys and private conversations.
 
-项目源码采用 [MIT](LICENSE) 许可证；第三方组件遵循各自许可证。
+Project source is licensed under [MIT](LICENSE). Third-party components retain their own licenses.

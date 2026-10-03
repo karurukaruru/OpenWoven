@@ -9,8 +9,10 @@
 
 按步骤操作见 [GitHub发布指南](GITHUB_RELEASE.md)，首版文案见
 [发布说明草稿](RELEASE_NOTES.md)，版本记录见 [CHANGELOG](CHANGELOG.md)。
-2026-10-03 已公开 [v0.1.0 实验版 APK](https://github.com/karurukaruru/OpenWoven/releases/tag/v0.1.0)，
-附校验值与第三方声明；以下未完成的正式版验收仍然保留。
+2026-10-03 已公开 [v0.2.0 实验版](https://github.com/karurukaruru/OpenWoven/releases/tag/v0.2.0)，
+附 Android APK、本地 Web/Core 安装包、校验值与第三方声明；以下未完成的正式版验收仍然保留。
+该版的 [四组 Core CI](https://github.com/karurukaruru/OpenWoven/actions/runs/37091280699)
+与 [源码候选包检查](https://github.com/karurukaruru/OpenWoven/actions/runs/37091304466) 均已通过。
 本地 `scripts/release_preflight.py` 可生成待上传源码清单及所选附件的SHA-256；
 不读取数据库/凭据，不修改Git，不上传。它不是完整秘密或历史扫描。
 
@@ -53,7 +55,7 @@
 另有手动 Source release candidate 工作流：版权完成后构建/检查wheel，生成
 短期候选 artifact；无仓库写权限、不自动公开 Release。执行状态看 Actions，
 不要把已配置等同于已运行通过。
-本次手动源码候选包已运行通过；手动 Android 托管流程未运行，本地两版各 98 项
+v0.2.0 手动源码候选包已运行通过；手动 Android 托管流程未运行，本地两版各 101 项
 单测、Lint 0 问题和 Full Debug 构建通过，不伪写成真机／托管 Android 验收。
 
 ## 2. Android 体验版与正式版分开

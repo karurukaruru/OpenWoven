@@ -120,7 +120,7 @@ class ReleasePreflightTests(unittest.TestCase):
         self.assertGreaterEqual(len(source_links), 20)
         for name in source_links:
             self.assertTrue((checkout / name).is_file(), name)
-        for name in ('README.md', 'README.en.md'):
+        for name in ('README.md', 'README.zh-CN.md'):
             self.assertIn('(ARCHITECTURE.md)', (checkout / name).read_text(encoding='utf-8'))
 
     def test_wrong_or_invalid_python_metadata_is_blocked(self):

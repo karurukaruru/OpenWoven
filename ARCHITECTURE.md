@@ -1,6 +1,6 @@
 # OpenWoven Architecture / 架构说明
 
-[中文入口](README.md) · [English entry](README.en.md) · [Memory details](MEMORY_DESIGN.md) · [Runtime details](RUNTIME_GUIDE.md)
+[中文入口](README.zh-CN.md) · [English entry](README.md) · [Memory details](MEMORY_DESIGN.md) · [Runtime details](RUNTIME_GUIDE.md)
 
 本文对应当前单用户原型，Python/Android基础版本0.2.0、SQLite schema v11。
 三张图描述已有组件的逻辑调用/数据关系，不表示所有操作同步完成，也不是效果验收。

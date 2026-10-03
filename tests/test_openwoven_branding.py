@@ -61,7 +61,7 @@ class OpenWovenBrandingTests(unittest.TestCase):
         self.assertIn('@style/Theme.OpenWoven', manifest)
 
     def test_readmes_keep_language_and_usage_links_without_edition_promotions(self):
-        for name, other in (('README.md', 'README.en.md'), ('README.en.md', 'README.md')):
+        for name, other in (('README.md', 'README.zh-CN.md'), ('README.zh-CN.md', 'README.md')):
             with self.subTest(readme=name):
                 text = (ROOT / name).read_text(encoding='utf-8')
                 self.assertIn(f'({other})', text)
@@ -72,6 +72,14 @@ class OpenWovenBrandingTests(unittest.TestCase):
                 self.assertNotRegex(text, r'(?i)mainland|hong kong|中国大陆|香港')
                 self.assertIn('python -m openwoven', text)
                 self.assertNotRegex(text, r'(?i)\blocked\b|local-first')
+        english = (ROOT / 'README.md').read_text(encoding='utf-8')
+        self.assertIn('An AI chat app that gets to know you over time.', english)
+        self.assertIn('## Quick start', english)
+        self.assertNotIn('## 快速开始', english)
+        alias = (ROOT / 'README.en.md').read_text(encoding='utf-8')
+        self.assertIn('(README.md)', alias)
+        metadata = tomllib.loads((ROOT / 'pyproject.toml').read_text(encoding='utf-8'))
+        self.assertEqual('README.md', metadata['project']['readme'])
         contributing = (ROOT / 'CONTRIBUTING.md').read_text(encoding='utf-8')
         self.assertIn('## Android', contributing)
         self.assertIn(':app:assembleFullDebug', contributing)
