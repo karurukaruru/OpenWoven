@@ -1,0 +1,4 @@
+interface:
+  display_name: "AUL — Agent User Learning"
+  short_description: "Learn user preferences and adapt agent behavior"
+  default_prompt: "Use $agent-user-learning to apply my preferences and learn from my corrections."

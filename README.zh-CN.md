@@ -1,5 +1,10 @@
 # OpenWoven
 
+想让编码、写作、学习等 Agent 根据用户反馈调整工作方式，可以使用
+[通用 AUL 原型](AUL_AGENT_GUIDE.md)：包含可安装的 `agent-user-learning`
+Skill、零外部依赖 Python 引擎和离线演示。它支持分场景策略、具体行为反馈、
+纠正与遗忘；宿主需要实际接入读取和学习流程，当前不会自动替换 Android 的聊天学习器。
+
 一个会逐渐了解你的 AI 聊天软件。
 
 [English](README.md)

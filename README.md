@@ -43,6 +43,15 @@ This is a local client, not a public server. Role packages can be exchanged, but
 
 ## Implementation and development
 
+### AUL for coding and other agents
+
+The [portable AUL prototype](AUL_AGENT_GUIDE.md) provides an installable
+`agent-user-learning` skill and a dependency-free Python engine. It turns
+evidence into scoped behavior rules for coding, writing, study and tool use,
+supports targeted feedback and forgetting, and includes an offline demo.
+Agent hosts must wire policy reads and post-turn learning into their workflow;
+this is separate from the Android/chat learner and does not train model weights.
+
 User preferences, character details and conversation records are stored separately. Each turn uses relevant memory to guide a reply, then saves conversation and feedback to refine later interactions. Model weights are not modified.
 
 See [Memory design](MEMORY_DESIGN.md), [Architecture](ARCHITECTURE.md) and [Contributing](CONTRIBUTING.md).

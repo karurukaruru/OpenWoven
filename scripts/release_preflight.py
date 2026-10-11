@@ -23,7 +23,7 @@ ROOT_FILES = (
     'GITHUB_RELEASE.md', 'RELEASE_NOTES.md', 'RELEASE_CHECKLIST.md', 'REVIEW.md',
     'MEMORY_DESIGN.md', 'PERSONA_DESIGN.md', 'AUL_DESIGN.md', 'RUNTIME_GUIDE.md', 'PERFORMANCE.md',
     'OPEN_SOURCE_PLAN.md', 'COMPETITOR_NOTES.md', 'ROLE_PACKAGES.md',
-    'THIRD_PARTY_NOTICES.md', 'android/app/src/main/assets/THIRD_PARTY_NOTICES.txt',
+    'THIRD_PARTY_NOTICES.md', 'AUL_AGENT_GUIDE.md', 'android/app/src/main/assets/THIRD_PARTY_NOTICES.txt',
     'android/build.gradle.kts', 'android/settings.gradle.kts',
     'android/gradle.properties', 'android/gradlew', 'android/gradlew.bat',
     'android/gradle/wrapper/gradle-wrapper.jar',
@@ -34,6 +34,7 @@ SOURCE_TREES = {
     'src/openwoven': {'.py', '.html', '.css', '.js'}, 'src/adaptive_companion': {'.py'}, 'tests': {'.py', '.cjs'}, 'examples': {'.py'},
     'scripts': {'.py'}, 'prompts': {'.md'}, '.github': {'.md', '.yml', '.yaml'},
     'android/app/src': {'.kt', '.xml'},
+    'skills/agent-user-learning': {'.md', '.py', '.yaml'},
 }
 REQUIRED_FILES = (
     *ROOT_FILES,

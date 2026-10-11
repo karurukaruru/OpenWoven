@@ -1,5 +1,9 @@
 # AUL：学习交流偏好，而不是给人定型
 
+通用 Agent 接入见 [AUL Agent Guide](AUL_AGENT_GUIDE.md)。该独立原型把学习目标
+扩展到编码、写作、学习与工具工作流，并提供可执行的策略更新和具体行为评价；
+下面描述的是现有聊天产品的 AUL，两者没有自动迁移或同步关系。
+
 AUL 在这个项目中指 **AI User Learning**。它实现为一层可以回放、解释和纠正的用户信息与交流偏好，不是训练底模，也不是心理诊断或已经证明有效的个性化算法。
 
 最早的想法来自 [ASM（Agent Software Map）](https://github.com/karurukaruru/agent-software-map)：Agent 可以记住怎么使用软件，那么能不能也记住用户喜欢怎样交流？这里“学习”指保存证据、更新本地状态，再用这些状态指导之后的 LLM 请求。效果仍需要真实使用与对照评测。
